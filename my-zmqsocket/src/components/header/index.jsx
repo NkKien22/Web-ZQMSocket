@@ -68,6 +68,14 @@ export const Header = () => {
         <PhoneOutlined className='phone-icon' />
         <div class="about__box-content"><p>Gọi mua hàng<br/><strong>0972495768</strong></p></div>
       </div>
+      <div className='call'>
+        <PhoneOutlined className='phone-icon' />
+        <div class="about__box-content"><p>Gọi mua hàng<br/><strong>0972495768</strong></p></div>
+      </div>
+      <div className='call'>
+        <PhoneOutlined className='phone-icon' />
+        <div class="about__box-content"><p>Gọi mua hàng<br/><strong>0972495768</strong></p></div>
+      </div>
       <div className='login-logout'>
         <UserOutlined className='login-logout-icon' />
         <div class="about__box-content">
