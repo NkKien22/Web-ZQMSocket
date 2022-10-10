@@ -4,12 +4,14 @@ import "./styles.css";
 import { useState } from 'react';
 import { FormLogin } from './formLogin';
 import { FormRegister } from './formRegister';
+import { REFRESH_TOKEN_KEY, TOKEN_KEY } from '../../utils/common';
+import Cookies from 'js-cookie';
 const { Search } = Input;
 
-export const Header = () => {
+export const Header = (props) => {
+  const { loginInfo, isLogined } = props;
   const [isOpenFormLogin, setIsOpenFormLogin] = useState(false);
   const [isOpenFormRegister, setIsOpenFormRegister] = useState(false);
-  const [alreadyLogin, setAlreadyLogin] = useState(true);
 
   const onSearch = (value) => console.log(value);
 
@@ -29,7 +31,9 @@ export const Header = () => {
     setIsOpenFormRegister(false);
   };
   const logoutUser = () => {
-    // xử lý đăng xuất tại đây
+    Cookies.remove(TOKEN_KEY);
+    Cookies.remove(REFRESH_TOKEN_KEY);
+    window.location.reload();
   }
   const menu = (
     <Menu
@@ -79,10 +83,10 @@ export const Header = () => {
       <div className='login-logout'>
         <UserOutlined className='login-logout-icon' />
         <div class="about__box-content">
-          {alreadyLogin ? 
+          {isLogined ? 
             <Dropdown overlay={menu}>
               <Space style={{color: '#fff', fontWeight: 'bold'}}>
-                  Nguyễn Khắc Kiên
+                 {loginInfo.username}
                 <DownOutlined />
               </Space>     
             </Dropdown> :
@@ -93,10 +97,10 @@ export const Header = () => {
         </div>
       </div>
       <Modal title="Đăng nhập" open={isOpenFormLogin} onCancel={handleCancelLogin} footer={null}>
-        <FormLogin />
+        <FormLogin setIsOpenFormLogin={setIsOpenFormLogin} />
       </Modal>
       <Modal title="Đăng ký" open={isOpenFormRegister} onCancel={handleCancelRegister} footer={null}>
-        <FormRegister />
+        <FormRegister setIsOpenFormRegister={setIsOpenFormRegister} />
       </Modal>
     </div>
   )

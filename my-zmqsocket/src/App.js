@@ -8,17 +8,34 @@ import { Header } from './components/header';
 import { ProductDetail } from './pages/productDetail';
 import { Banner } from './components/banner';
 import { ProductList } from './components/productList';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useState } from 'react';
+import jwt_decode from 'jwt-decode';
+import Cookies from 'js-cookie';
+import { TOKEN_KEY } from './utils/common';
 
 function App() {
+  const [loginInfo, setLoginInfo] = useState();
+  const [isLogined, setIsLogined] = useState();
+
+  useEffect(() => {
+    const tokenLogin = Cookies.get(TOKEN_KEY);
+    if (!tokenLogin) {
+      setIsLogined(false);
+    } else {
+      const parseToken = jwt_decode(tokenLogin);
+      setLoginInfo(parseToken);
+      setIsLogined(true);
+    }
+  }, []);
   return (
     <div className="App">
-      <Header />
+      <Header loginInfo={loginInfo} isLogined={isLogined} />
       <Banner />
       <ProductList />
       <BrowserRouter>
         <Routes>
-          <Route path="/detail" element={<ProductDetail />}>
-          </Route>
+          <Route path="/product/:1" element={<ProductDetail />}/>
         </Routes>
       </BrowserRouter>
     </div>
