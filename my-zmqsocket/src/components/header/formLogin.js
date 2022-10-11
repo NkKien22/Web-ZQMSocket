@@ -13,7 +13,6 @@ export const FormLogin = (props) => {
       username: values.username,
       password: values.password,
     };
-    // debugger
     axios.post(`${URL_API}/User/login`, payload)
       .then(res => {
         if(res.data.success) {

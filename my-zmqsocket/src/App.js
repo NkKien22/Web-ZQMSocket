@@ -17,6 +17,7 @@ import { TOKEN_KEY } from './utils/common';
 function App() {
   const [loginInfo, setLoginInfo] = useState();
   const [isLogined, setIsLogined] = useState();
+  const [dataSearch, setDataSearch] = useState(null);
 
   useEffect(() => {
     const tokenLogin = Cookies.get(TOKEN_KEY);
@@ -30,9 +31,9 @@ function App() {
   }, []);
   return (
     <div className="App">
-      <Header loginInfo={loginInfo} isLogined={isLogined} />
+      <Header loginInfo={loginInfo} isLogined={isLogined} setDataSearch={setDataSearch} />
       <Banner />
-      <ProductList />
+      <ProductList dataSearch={dataSearch} />
       <BrowserRouter>
         <Routes>
           <Route path="/product/:1" element={<ProductDetail />}/>
