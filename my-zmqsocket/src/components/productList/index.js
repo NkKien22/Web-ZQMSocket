@@ -11,8 +11,6 @@ export const ProductList = (props) => {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const [category, setCategory] = useState([]);
-
 
   const getAllProduct = (page, pageSize) => {
     setLoading(true);
@@ -30,28 +28,18 @@ export const ProductList = (props) => {
     getAllProduct(page, 12);
   };
 
-  const getAllCategory = () => {
-    axios
-    .get(`${URL_API}/Product/get-category`)
-    .then((res) => {
-      setCategory(res.data.item);
-    })
-  }
-
   useEffect(() => {
     getAllProduct(1, 12);
-    getAllCategory();
   }, []);
   return (
     <div className="container mt-5">
       <Row>
         <Col style={{ fontWeight: "bold" }}>ĐIỆN THOẠI NỔI BẬT NHẤT</Col>
         <Col className="ms-auto">
-          {category.map((x) => {
-            return (
-              <Button style={{ marginLeft: 10 }}>{x.tacagoryName}</Button>
-            )
-          })}
+          <Button>Apple</Button>
+          <Button style={{ marginLeft: 10 }}>Asus</Button>
+          <Button style={{ marginLeft: 10 }}>Nokia</Button>
+          <Button style={{ marginLeft: 10 }}>Oppo</Button>
         </Col>
       </Row>
       <Row className="mt-5" justify="space-evenly" xs={1} md={4} lg={6}>
