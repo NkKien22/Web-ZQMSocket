@@ -1,5 +1,10 @@
 import { Dropdown, Modal, Input, Space, Menu } from "antd";
-import { PhoneOutlined, UserOutlined, DownOutlined } from "@ant-design/icons";
+import {
+  PhoneOutlined,
+  UserOutlined,
+  DownOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import "./styles.css";
 import { useState } from "react";
 import { FormLogin } from "./formLogin";
@@ -7,6 +12,7 @@ import { FormRegister } from "./formRegister";
 import { REFRESH_TOKEN_KEY, TOKEN_KEY, URL_API } from "../../utils/common";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { Link } from "react-router-dom";
 const { Search } = Input;
 
 export const Header = (props) => {
@@ -21,7 +27,7 @@ export const Header = (props) => {
       )
       .then((res) => {
         setDataSearch(res.data.item);
-      })
+      });
   };
 
   const openFormLogin = () => {
@@ -136,6 +142,12 @@ export const Header = (props) => {
           )}
         </div>
       </div>
+      <Link to="/cart" className="cart">
+        <div className="login-logout">
+          <ShoppingCartOutlined className="login-logout-icon" />
+          <div class="about__box-content">Giỏ hàng</div>
+        </div>
+      </Link>
       <Modal
         title="Đăng nhập"
         open={isOpenFormLogin}

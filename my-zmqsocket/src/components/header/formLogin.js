@@ -16,8 +16,8 @@ export const FormLogin = (props) => {
     axios.post(`${URL_API}/User/login`, payload)
       .then(res => {
         if(res.data.success) {
-          Cookies.set(TOKEN_KEY, res.data.item.access_token);
-          Cookies.set(REFRESH_TOKEN_KEY, res.data.item.refresh_token);
+          Cookies.set(TOKEN_KEY, res.data.item.accessToken);
+          Cookies.set(REFRESH_TOKEN_KEY, res.data.item.refreshToken);
           window.location.reload();
           notification.success({
             message: 'Bạn đã đăng nhập thành công',

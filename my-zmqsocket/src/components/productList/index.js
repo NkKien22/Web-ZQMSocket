@@ -1,12 +1,13 @@
-import { Row, Col, Card, Button, Rate, Spin } from "antd";
+import { Row, Col, Card, Button, Spin } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { formatPrice } from "../../helpers";
 import { URL_API } from "../../utils/common";
 import { Pagination } from "antd";
+import { Link } from "react-router-dom";
 
 export const ProductList = (props) => {
-  const {dataSearch } = props;
+  const { dataSearch } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState();
@@ -50,24 +51,24 @@ export const ProductList = (props) => {
             {(dataSearch || data).map((x) => {
               return (
                 <Col>
-                  <Card
-                    hoverable
-                    style={{ width: 200 }}
-                    cover={
-                      <img
-                        alt="example"
-                        src="https://cf.shopee.vn/file/2c4d98eeff0be7f6eaeb25f919e13c44"
-                        style={{ height: 200 }}
-                      />
-                    }
-                    // cover={<img alt="example" src={`${PATH_IMG}/${x.images[0].split('\\').pop()}`} style={{ height: 200 }} />}
-                  >
-                    <b>{x.productName}</b>
-                    <p style={{ color: "red", fontWeight: "bold" }}>
-                      {formatPrice(x.price)}
-                    </p>
-                    {/* <Rate defaultValue={2.5} /> */}
-                  </Card>
+                  <Link to={`/product/${x.variantID}`}>
+                    <Card
+                      hoverable
+                      style={{ width: 200 }}
+                      cover={
+                        <img
+                          alt="example"
+                          src="https://cf.shopee.vn/file/2c4d98eeff0be7f6eaeb25f919e13c44"
+                          style={{ height: 200 }}
+                        />
+                      }
+                    >
+                      <b>{x.productName}</b>
+                      <p style={{ color: "red", fontWeight: "bold" }}>
+                        {formatPrice(x.price)}
+                      </p>
+                    </Card>
+                  </Link>
                 </Col>
               );
             })}
