@@ -36,9 +36,9 @@ export const Banner = () => {
   };
 
   return (
-    <div style={{height: 350}}>
+    <div className="container">
       <Row>
-        <Col span={3} offset={2}>
+        <Col span={3}>
           <Menu
             onClick={onClick}
             style={{
@@ -48,7 +48,7 @@ export const Banner = () => {
             items={items}
           />
         </Col>
-        <Col span={17}>
+        <Col span={21}>
           <Carousel>
             <div>
               <img style={{width: '100%'}} src={Slider1}/>
