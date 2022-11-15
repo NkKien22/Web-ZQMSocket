@@ -13,8 +13,11 @@ import { useEffect, useState } from "react";
 import { URL_API } from "../../utils/common";
 import { DeleteOutlined } from "@ant-design/icons";
 import { formatPrice } from "../../helpers";
+import { Steps } from "antd";
+import { Col, Row } from "react-bootstrap";
 
 const { Search } = Input;
+const { Step } = Steps;
 
 export const Cart = (props) => {
   const { userId } = props;
@@ -24,17 +27,9 @@ export const Cart = (props) => {
   const [openFormOrder, setOpenOrder] = useState(false);
   const [loading, setLoading] = useState(false);
   const [coupon, setCoupon] = useState(null);
+  const [couponValid, setCouponValid] = useState(false);
+  const [step, setStep] = useState(0);
 
-  //   key: x?.variantId,
-  //   name: x?.productName,
-  //   quantity: x?.quantity,
-  //   price: x?.price
-  // {
-  //     key: '1',
-  //     name: 'Mike',
-  //     age: 32,
-  //     address: '10 Downing Street',
-  //   },
   const onChangeQuantity = (record, val) => {
     data.forEach((x) => {
       if (x.key === record.key) x.quantity = val;
@@ -144,7 +139,6 @@ export const Cart = (props) => {
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -155,10 +149,34 @@ export const Cart = (props) => {
 
   const onFinish = (values) => {
     setLoading(true);
-    // const payload = {
-    //   username: values.username,
-    //   password: values.password,
-    // };
+    const product = data
+      .filter((x) => selectedRowKeys.includes(x.key))
+      .map((x) => ({
+        variantID: x.key,
+        price: x.price,
+      }));
+    const payload = {
+      codeCoupon: couponValid ? coupon : null,
+      userID: userId,
+      description: values.description,
+      fullName: values.fullName,
+      phoneNumber: values.phoneNumber,
+      address: values.address,
+      email: values.email,
+      product,
+    };
+    axios
+      .post(`${URL_API}/Order/create-order`, payload)
+      .then((res) => {
+        if (res) {
+          notification.success({
+            message: "Đặt hàng thành công",
+          });
+          setOpenOrder(false);
+          setStep(3);
+        }
+      })
+      .finally(() => setLoading(true));
   };
 
   const onSearch = (value) => {
@@ -167,7 +185,9 @@ export const Cart = (props) => {
       .then((res) => {
         if (res?.data?.status === "200") {
           setCoupon(value);
+          setCouponValid(true);
         } else {
+          setCouponValid(false);
           notification.warning({
             message: "Mã giảm giá khong hợp lệ, vui lòng nhập lại hoặc bỏ qua",
           });
@@ -181,7 +201,17 @@ export const Cart = (props) => {
 
   return (
     <div className="container mt-5">
+      <Row>
+        <Col sm={12}>
+          <Steps current={step}>
+            <Step title="Giỏ hàng" />
+            <Step title="Điền thông tin" />
+            <Step title="Đặt hàng thành công" />
+          </Steps>
+        </Col>
+      </Row>
       <Table
+        className="mt-4"
         rowSelection={rowSelection}
         columns={columns}
         dataSource={data}
@@ -192,7 +222,10 @@ export const Cart = (props) => {
         type="primary"
         disabled={selectedRowKeys.length === 0}
         size="large"
-        onClick={setOpenOrder}
+        onClick={() => {
+          setOpenOrder(true);
+          setStep(1);
+        }}
       >
         Dặt hàng
       </Button>

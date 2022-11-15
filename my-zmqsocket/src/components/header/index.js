@@ -1,4 +1,4 @@
-import { Dropdown, Modal, Input, Space, Menu } from "antd";
+import { Dropdown, Modal, Input, Space, Menu, Badge } from "antd";
 import {
   PhoneOutlined,
   UserOutlined,
@@ -16,9 +16,10 @@ import { Link } from "react-router-dom";
 const { Search } = Input;
 
 export const Header = (props) => {
-  const { loginInfo, isLogined, setDataSearch } = props;
+  const { loginInfo, isLogined, setDataSearch, countProduct } = props;
   const [isOpenFormLogin, setIsOpenFormLogin] = useState(false);
   const [isOpenFormRegister, setIsOpenFormRegister] = useState(false);
+  const countProductLocal = localStorage.getItem("COUNT_PRODUCT");
 
   const onSearch = (value) => {
     axios
@@ -144,7 +145,9 @@ export const Header = (props) => {
       </div>
       <Link to="/cart" className="cart">
         <div className="login-logout">
-          <ShoppingCartOutlined className="login-logout-icon" />
+          <Badge count={countProduct || countProductLocal}>
+            <ShoppingCartOutlined className="login-logout-icon" />
+          </Badge>
           <div class="about__box-content">Giỏ hàng</div>
         </div>
       </Link>

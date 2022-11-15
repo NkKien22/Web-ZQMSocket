@@ -13,6 +13,7 @@ import { Cart } from "./pages/cart";
 function App() {
   const [loginInfo, setLoginInfo] = useState();
   const [isLogined, setIsLogined] = useState();
+  const [countProduct, setCountProduct] = useState(0);
 
   useEffect(() => {
     const tokenLogin = Cookies.get(TOKEN_KEY);
@@ -24,15 +25,34 @@ function App() {
       setIsLogined(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem("COUNT_PRODUCT") !== undefined) {
+      setCountProduct(localStorage.getItem("COUNT_PRODUCT"));
+    } else {
+      setCountProduct(0);
+    }
+  }, [localStorage.getItem("COUNT_PRODUCT")]);
+
   return (
     <BrowserRouter>
       <div>
-        <Header loginInfo={loginInfo} isLogined={isLogined} />
+        <Header
+          loginInfo={loginInfo}
+          isLogined={isLogined}
+          countProduct={countProduct}
+        />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
             path="/product/:variantID"
-            element={<ProductDetail userId={loginInfo?.id} />}
+            element={
+              <ProductDetail
+                userId={loginInfo?.id}
+                setCountProduct={setCountProduct}
+                countProduct={countProduct}
+              />
+            }
           />
           <Route path="/cart" element={<Cart userId={loginInfo?.id} />} />
         </Routes>

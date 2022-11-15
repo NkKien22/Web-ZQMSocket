@@ -6,9 +6,10 @@ import ReactImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { formatPrice, URL_API } from "../../utils/common";
 import { useParams } from "react-router-dom";
+import { isNumber } from "lodash";
 
 export const ProductDetail = (props) => {
-  const { userId } = props;
+  const { userId, countProduct, setCountProduct } = props;
   let { variantID } = useParams();
   const [data, setData] = useState();
   const [images, setImages] = useState([
@@ -46,16 +47,25 @@ export const ProductDetail = (props) => {
       userId: userId,
     };
     axios.post(`${URL_API}/CartItem/cart-item`, payload).then((res) => {
-      if (res)
+      if (res) {
+        setCountProduct(countProduct + 1);
         notification.success({
           message: "Them vào giỏ hàng thành công",
         });
+      }
     });
   };
 
   useEffect(() => {
     getProduct();
   }, []);
+
+  useEffect(() => {
+    console.log(countProduct);
+    if (isNumber(countProduct)) {
+      setCountProduct(localStorage.setItem("COUNT_PRODUCT", countProduct));
+    }
+  }, [countProduct]);
 
   return (
     <div className="container mt-5">
