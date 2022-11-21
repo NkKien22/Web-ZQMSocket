@@ -10,7 +10,7 @@ import { isNumber } from "lodash";
 
 export const ProductDetail = (props) => {
   const { userId, countProduct, setCountProduct } = props;
-  let { variantID } = useParams();
+  let { productID } = useParams();
   const [data, setData] = useState();
   const [images, setImages] = useState([
     {
@@ -35,7 +35,7 @@ export const ProductDetail = (props) => {
 
   const getProduct = () => {
     axios
-      .get(`${URL_API}/Product/get-product-detail-by-id?id=${variantID}`)
+      .get(`${URL_API}/Product/get-product-detail-by-id?id=${productID}`)
       .then((res) => {
         setData(res.data.item);
       });
@@ -43,7 +43,7 @@ export const ProductDetail = (props) => {
 
   const addToCart = () => {
     const payload = {
-      variantId: variantID,
+      variantId: productID,
       userId: userId,
     };
     axios.post(`${URL_API}/CartItem/cart-item`, payload).then((res) => {
@@ -53,6 +53,8 @@ export const ProductDetail = (props) => {
           message: "Them vào giỏ hàng thành công",
         });
       }
+    }).then(() => {
+      window.location.reload();
     });
   };
 

@@ -12,14 +12,30 @@ export const ProductList = (props) => {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState();
   const [currentPage, setCurrentPage] = useState(1);
+  const [dataCategory, setDataCategory] = useState([]);
 
   const getAllProduct = (page, pageSize) => {
     setLoading(true);
     axios
-      .get(`${URL_API}/Product/get-product?pageNum=${page}&pageSize=${pageSize}`)
+      .get(
+        `${URL_API}/Product/get-product?pageNum=${page}&pageSize=${pageSize}`
+      )
       .then((res) => {
         setData(res.data.item);
-        setTotal(parseInt(res.data.message.split(' ')[0]));
+        setTotal(parseInt(res.data.message.split(" ")[0]));
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const getProductByCategory = (page, pageSize, tacagoryName) => {
+    setLoading(true);
+    axios
+      .get(
+        `${URL_API}/Product/get-product?pageNum=${page}&pageSize=${pageSize}&keyworks=${tacagoryName}`
+      )
+      .then((res) => {
+        setData(res.data.item);
+        setTotal(parseInt(res.data.message.split(" ")[0]));
       })
       .finally(() => setLoading(false));
   };
@@ -28,22 +44,34 @@ export const ProductList = (props) => {
     setCurrentPage(page);
     getAllProduct(page, 12);
   };
+  // https://localhost:7018/api/Product/get-category
+
+  const getAllCategory = () => {
+    axios.get(`${URL_API}/Product/get-category`).then((res) => {
+      setDataCategory(res.data.item);
+    });
+  };
 
   useEffect(() => {
     getAllProduct(1, 12);
+    getAllCategory();
   }, []);
+
+  const onFilterByCategory = (tacagoryName) => {
+    getProductByCategory(1, 12, tacagoryName);
+  }
+
   return (
     <div className="container mt-5">
       <Row>
         <Col style={{ fontWeight: "bold" }}>ĐIỆN THOẠI NỔI BẬT NHẤT</Col>
         <Col className="ms-auto">
-          <Button>Apple</Button>
-          <Button style={{ marginLeft: 10 }}>Asus</Button>
-          <Button style={{ marginLeft: 10 }}>Nokia</Button>
-          <Button style={{ marginLeft: 10 }}>Oppo</Button>
+          {dataCategory.map((x) => (
+            <Button style={{ marginLeft: 10 }} onClick={() => onFilterByCategory(x.tacagoryName)}>{x.tacagoryName}</Button>
+          ))}
         </Col>
       </Row>
-      <Row className="mt-5" justify="space-evenly" xs={1} md={4} lg={6}>
+      <Row className="mt-5" justify="space-evenly" xs={1} sm={6} md={6} lg={6}>
         {loading ? (
           <Spin className="text-center" />
         ) : (
@@ -51,10 +79,10 @@ export const ProductList = (props) => {
             {(dataSearch || data).map((x) => {
               return (
                 <Col>
-                  <Link to={`/product/${x.variantID}`}>
+                  <Link to={`/product/${x.productID}`}>
                     <Card
                       hoverable
-                      style={{ width: 200 }}
+                      style={{ width: 250 }}
                       cover={
                         <img
                           alt="example"
@@ -63,10 +91,18 @@ export const ProductList = (props) => {
                         />
                       }
                     >
-                      <b>{x.productName}</b>
-                      <p style={{ color: "red", fontWeight: "bold" }}>
-                        {formatPrice(x.price)}
-                      </p>
+                      <div className="text-center fw-bold">{x.productName}</div>
+                      <div className="d-flex">
+                        <span style={{ color: "red", fontWeight: "bold" }}>
+                          {formatPrice(x.price)}
+                        </span>
+                        <span
+                          style={{ color: "red", fontWeight: "bold" }}
+                          className="text-decoration-line-through ms-5"
+                        >
+                          {formatPrice(x.fakePrice)}
+                        </span>
+                      </div>
                     </Card>
                   </Link>
                 </Col>
@@ -75,7 +111,14 @@ export const ProductList = (props) => {
           </>
         )}
       </Row>
-      {(dataSearch?.length > 0 || data.length > 0) && <Pagination current={currentPage} onChange={onChangePage} total={total} pageSize={12} />}
+      {(dataSearch?.length > 0 || data.length > 0) && (
+        <Pagination
+          current={currentPage}
+          onChange={onChangePage}
+          total={total}
+          pageSize={12}
+        />
+      )}
     </div>
   );
 };
