@@ -6,49 +6,11 @@ import Slider2 from './../../images/slider2.png';
 import Slider3 from './../../images/slider3.png';
 
 export const Banner = () => {
-  function getItem(label, key, icon, children, type) {
-    return {
-      key,
-      icon,
-      children,
-      label,
-      type,
-    };
-  }
-
-  const items = [
-    getItem('Điện thoại', 'sub1', <AppstoreOutlined />, [
-      getItem('Samsung 1', '1'),
-      getItem('Samsung 6', '6'),
-    ]),
-    getItem('Laptop', 'sub2', <AppstoreOutlined />, [
-      getItem('Option 5', '5'),
-      getItem('Option 6', '6'),
-    ]),
-    getItem('Phụ kiện', 'sub3', <AppstoreOutlined />, [
-      getItem('Option 5', '5'),
-      getItem('Option 6', '6'),
-    ]),
-  ];
-
-  const onClick = (e) => {
-    console.log('click', e);
-  };
 
   return (
     <div className="container">
       <Row>
-        <Col span={3}>
-          <Menu
-            onClick={onClick}
-            style={{
-              width: '100%',
-            }}
-            mode="vertical"
-            items={items}
-          />
-        </Col>
-        <Col span={21}>
+        <Col span={24}>
           <Carousel>
             <div>
               <img style={{width: '100%'}} src={Slider1}/>

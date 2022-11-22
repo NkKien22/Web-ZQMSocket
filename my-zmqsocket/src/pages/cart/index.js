@@ -46,6 +46,8 @@ export const Cart = (props) => {
         notification.success({
           message: "Cập nhật giỏ hàng thành công",
         });
+    }).then(() => {
+      window.location.reload();
     });
   };
 
@@ -59,7 +61,7 @@ export const Cart = (props) => {
           });
       })
       .then(() => {
-        getCarts(userId);
+        window.location.reload();
       });
   };
 
@@ -152,7 +154,7 @@ export const Cart = (props) => {
     const product = data
       .filter((x) => selectedRowKeys.includes(x.key))
       .map((x) => ({
-        variantID: x.key,
+        cartID: x.key,
         price: x.price,
       }));
     const payload = {
