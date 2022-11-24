@@ -19,6 +19,7 @@ import ThongKe from "./components/ThongKe/ThongKe";
 import ClientManager from "./components/ManagerClient/ManagerClient";
 import UserDetail from "./components/ManagerClient/Detail";
 import UserEdit from "./components/ManagerClient/Edit";
+import Profile from "./pages/Profile";
 
 
 function App() {
@@ -102,6 +103,7 @@ function App() {
           <Route path='/QLSanPham/detail/:pid' element={<PrDetail />}></Route>
           <Route path='/QLSanPham/edit/:pid' element={<PrEdit />}></Route>
           <Route path="/thongke" element={<ThongKe />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/qltaikhoan" element={<ClientManager />} />
           <Route path='/qltaikhoan/detail/:uid' element={<UserDetail />}></Route>
           <Route path='/qltaikhoan/edit/:uid' element={<UserEdit />}></Route>
