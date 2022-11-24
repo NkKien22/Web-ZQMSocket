@@ -10,6 +10,16 @@ import jwt_decode from "jwt-decode";
 import { TOKEN_KEY, URL_API } from "./utils/common";
 import { Cart } from "./pages/cart";
 import axios from "axios";
+import SideBar from "./components/Sidebar/SideBar";
+import ProductManager from "./components/ManagerProduct/Product";
+import PrCreate from "./components/ManagerProduct/Create";
+import PrDetail from "./components/ManagerProduct/Detail";
+import PrEdit from "./components/ManagerProduct/Edit";
+import ThongKe from "./components/ThongKe/ThongKe";
+import ClientManager from "./components/ManagerClient/ManagerClient";
+import UserDetail from "./components/ManagerClient/Detail";
+import UserEdit from "./components/ManagerClient/Edit";
+
 
 function App() {
   const [loginInfo, setLoginInfo] = useState();
@@ -63,6 +73,7 @@ function App() {
   return (
     <BrowserRouter>
       <div>
+      <SideBar>
         <Header
           loginInfo={loginInfo}
           isLogined={isLogined}
@@ -72,7 +83,7 @@ function App() {
           countCart={countCart}
           data={data}
         />
-        <Routes>
+      <Routes>
           <Route path="/" element={<Home />} />
           <Route
             path="/product/:productID"
@@ -84,8 +95,18 @@ function App() {
               />
             }
           />
+          <Route path="/SideBar" element={<SideBar />} />
           <Route path="/cart" element={<Cart userId={loginInfo?.id} />} />
-        </Routes>
+          <Route path="/QLSanPham" element={<ProductManager />} />
+          <Route path='/QLSanPham/create' element={<PrCreate />}></Route>
+          <Route path='/QLSanPham/detail/:pid' element={<PrDetail />}></Route>
+          <Route path='/QLSanPham/edit/:pid' element={<PrEdit />}></Route>
+          <Route path="/thongke" element={<ThongKe />} />
+          <Route path="/qltaikhoan" element={<ClientManager />} />
+          <Route path='/qltaikhoan/detail/:uid' element={<UserDetail />}></Route>
+          <Route path='/qltaikhoan/edit/:uid' element={<UserEdit />}></Route>
+      </Routes>
+      </SideBar>
       </div>
     </BrowserRouter>
   );
