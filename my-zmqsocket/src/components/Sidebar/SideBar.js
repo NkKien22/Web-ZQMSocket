@@ -2,12 +2,12 @@ import { NavLink } from "react-router-dom";
 import { FaBars, FaHome, FaLock, FaMoneyBill, FaUser } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 import { BiCog } from "react-icons/bi";
-import { AiFillHeart } from "react-icons/ai";
-import { BsCartCheck } from "react-icons/bs";
+import { BsReceiptCutoff } from "react-icons/bs";
+import { AiFillPieChart } from "react-icons/ai";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AiFillDatabase } from "react-icons/ai";
-import { AiOutlineOrderedList } from "react-icons/ai";
+import { HiUserGroup } from "react-icons/hi2";
 import SidebarMenu from "./SidebarMenu";
 const routes = [
   {
@@ -16,33 +16,33 @@ const routes = [
     icon: <FaHome />,
   },
   {
+    path: "/thongke",
+    name: "Thống kê",
+    icon: <AiFillPieChart />,
+  },
+  {
     path: "/qlsanpham",
     name: "Quản lý sản phẩm",
     icon: <AiFillDatabase />,
-  },
-  {
-    path: "/thongke",
-    name: "Thống kê",
-    icon: <AiOutlineOrderedList />,
   },{
     path: "/qltaikhoan",
     name: "Quản lý khách hàng",
-    icon: <FaUser />,
+    icon: <HiUserGroup />,
   },
   {
-    path: "/dathang",
-    name: "Đặt hàng",
-    icon: <BsCartCheck />,
+    path: "/qlhoadon",
+    name: "Hóa đơn",
+    icon: <BsReceiptCutoff/>,
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    icon: <FaUser />,
   },
   {
     path: "/settings",
     name: "Cài đặt",
     icon: <BiCog />,
-  },
-  {
-    path: "/like",
-    name: "Yêu thích",
-    icon: <AiFillHeart />,
   },
 ];
 
