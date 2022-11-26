@@ -169,7 +169,7 @@ function ProductManager() {
                     <td>{a.quantity} </td>
                     <td>
                       <a
-                        
+                        href="QLSanPham/detail"
                         class="view"
                         title="View"
                         data-toggle="tooltip"
