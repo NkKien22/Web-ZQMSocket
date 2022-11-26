@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ProductDetail } from "./pages/productDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Home } from "./components/home";
@@ -21,7 +21,6 @@ import UserDetail from "./components/ManagerClient/Detail";
 import UserEdit from "./components/ManagerClient/Edit";
 import Profile from "./pages/Profile";
 
-
 function App() {
   const [loginInfo, setLoginInfo] = useState();
   const [isLogined, setIsLogined] = useState();
@@ -29,7 +28,7 @@ function App() {
   const [data, setData] = useState();
   const [total, setTotal] = useState();
   const [countCart, setCountCart] = useState();
-
+  const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     const tokenLogin = Cookies.get(TOKEN_KEY);
     if (!tokenLogin) {
@@ -74,7 +73,6 @@ function App() {
   return (
     <BrowserRouter>
       <div>
-      <SideBar>
         <Header
           loginInfo={loginInfo}
           isLogined={isLogined}
@@ -84,7 +82,7 @@ function App() {
           countCart={countCart}
           data={data}
         />
-      <Routes>
+        <Routes>
           <Route path="/" element={<Home />} />
           <Route
             path="/product/:productID"
@@ -96,19 +94,20 @@ function App() {
               />
             }
           />
-          <Route path="/SideBar" element={<SideBar />} />
           <Route path="/cart" element={<Cart userId={loginInfo?.id} />} />
           <Route path="/QLSanPham" element={<ProductManager />} />
-          <Route path='/QLSanPham/create' element={<PrCreate />}></Route>
-          <Route path='/QLSanPham/detail/:pid' element={<PrDetail />}></Route>
-          <Route path='/QLSanPham/edit/:pid' element={<PrEdit />}></Route>
+          <Route path="/QLSanPham/create" element={<PrCreate />}></Route>
+          <Route path="/QLSanPham/detail/:pid" element={<PrDetail />}></Route>
+          <Route path="/QLSanPham/edit/:pid" element={<PrEdit />}></Route>
           <Route path="/thongke" element={<ThongKe />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/qltaikhoan" element={<ClientManager />} />
-          <Route path='/qltaikhoan/detail/:uid' element={<UserDetail />}></Route>
-          <Route path='/qltaikhoan/edit/:uid' element={<UserEdit />}></Route>
-      </Routes>
-      </SideBar>
+          <Route
+            path="/qltaikhoan/detail/:uid"
+            element={<UserDetail />}
+          ></Route>
+          <Route path="/qltaikhoan/edit/:uid" element={<UserEdit />}></Route>
+        </Routes>
       </div>
     </BrowserRouter>
   );
