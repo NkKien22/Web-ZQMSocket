@@ -4,7 +4,15 @@ import { Button, Moda } from "react-bootstrap";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import VisibilityTwoToneIcon from "@mui/icons-material/VisibilityTwoTone";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
-import { Drawer, Form, Menu, Pagination, Input } from "antd";
+import {
+  Drawer,
+  Form,
+  Menu,
+  Pagination,
+  Input,
+  Popconfirm,
+  notification,
+} from "antd";
 import {
   AppstoreOutlined,
   MailOutlined,
@@ -22,15 +30,14 @@ function getItem(label, key, icon, children, type) {
   };
 }
 const items = [
-  getItem("Navigation Two", "sub2", <AppstoreOutlined />, [
-    getItem("Option 5", "5"),
-    getItem("Option 6", "6"),
-  ]),
+  getItem("Quản lý sản phẩm", "1"),
+  getItem("Quản lý khách hàng", "2"),
 ];
 function ProductManager() {
   const [empdata, empdatachange] = useState(null); //Thêm link api get all user
   const [data, setData] = useState([]); //Thêm link api get all user
-  const [openFormOrder, setOpenOrder] = useState(false);
+  const [openFormAdd, setOpenFormAdd] = useState(false);
+  const [openFormEdit, setOpenFormEdit] = useState(false);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState();
@@ -44,19 +51,18 @@ function ProductManager() {
   const LoadEdit = (id) => {
     navigate("/QLSanPham/edit/" + id);
   };
-  const Removefunction = (id) => {
-    if (window.confirm("Bạn có chắn chắn muốn xóa tài khoản này?")) {
-      fetch("http://localhost:8000/employee/" + id, {
-        method: "DELETE",
-      })
-        .then((res) => {
-          alert("Removed successfully.");
-          window.location.reload();
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-    }
+  const handleDeleteProduct = (id) => {
+    // axios
+    //   .delete(`${URL_API}/CartItem/delete-cart?cartId=${id}`)
+    //   .then((res) => {
+    //     if (res)
+    //       notification.success({
+    //         message: "Xóa sản phẩm giỏ hàng thành công",
+    //       });
+    //   })
+    //   .then(() => {
+    //     window.location.reload();
+    //   });
   };
   const getAllProduct = (page, pageSize) => {
     axios
@@ -73,8 +79,12 @@ function ProductManager() {
     getAllProduct(1, 10);
   }, []);
 
-  const onClose = () => {
-    setOpenOrder(false);
+  const onCloseFormAdd = () => {
+    setOpenFormAdd(false);
+  };
+
+  const onCloseFormEdit = () => {
+    setOpenFormEdit(false);
   };
 
   const onFinish = (values) => {
@@ -92,10 +102,9 @@ function ProductManager() {
         },
       ],
     };
-    axios.post(`${URL_API}/Product/add-product` ,payload).then((res) => {
-      onClose();
+    axios.post(`${URL_API}/Product/add-product`, payload).then((res) => {
+      onCloseFormAdd();
     });
-    console.log(values);
   };
 
   return (
@@ -136,7 +145,7 @@ function ProductManager() {
             <Button
               variant="primary"
               onClick={() => {
-                setOpenOrder(true);
+                setOpenFormAdd(true);
               }}
             >
               Thêm sản phẩm
@@ -181,28 +190,18 @@ function ProductManager() {
                         <VisibilityTwoToneIcon />
                       </a>
                       <a
-                        href="QLSanPham/eidt"
-                        class="edit"
-                        title="Edit"
-                        data-toggle="tooltip"
                         onClick={() => {
-                          LoadEdit(a.id);
+                          setOpenFormEdit(true);
                         }}
                       >
                         <EditTwoToneIcon />
                       </a>
-                      <a
-                        href="#"
-                        class="delete"
-                        title="Delete"
-                        data-toggle="tooltip"
-                        style={{ color: "red", margin: "10px" }}
-                        onClick={() => {
-                          Removefunction(a.id);
-                        }}
+                      <Popconfirm
+                        title="Bạn có chắc chắn xóa?"
+                        onConfirm={() => handleDeleteProduct(a.id)}
                       >
                         <DeleteTwoToneIcon />
-                      </a>
+                      </Popconfirm>
                     </td>
                   </tr>
                 ))}
@@ -220,10 +219,79 @@ function ProductManager() {
         </div>
       </div>
       <Drawer
-        title="Thong tin dặt hàng"
+        title="Thêm sản phẩm"
         placement="right"
-        onClose={onClose}
-        open={openFormOrder}
+        onClose={onCloseFormAdd}
+        open={openFormAdd}
+      >
+        <Form
+          name="basic"
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinish}
+          autoComplete="off"
+        >
+          <Form.Item
+            name="productName"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập sản phẩm",
+              },
+            ]}
+          >
+            <Input placeholder="Tên Sản Phẩm" />
+          </Form.Item>
+
+          <Form.Item
+            name="brandName"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập thương hiệu!",
+              },
+            ]}
+          >
+            <Input placeholder="Thương Hiệu" />
+          </Form.Item>
+
+          <Form.Item
+            name="price"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập giá bán",
+              },
+            ]}
+          >
+            <Input placeholder="Giá Bán" />
+          </Form.Item>
+
+          <Form.Item
+            name="quantity"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập số lượng",
+              },
+            ]}
+          >
+            <Input type="number" placeholder="Số Lượng" />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Xác nhận
+            </Button>
+          </Form.Item>
+        </Form>
+      </Drawer>
+      <Drawer
+        title="Sửa sản phẩm"
+        placement="right"
+        onClose={onCloseFormEdit}
+        open={openFormEdit}
       >
         <Form
           name="basic"

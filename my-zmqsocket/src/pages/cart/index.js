@@ -71,9 +71,21 @@ export const Cart = (props) => {
 
   const columns = [
     {
-      title: "Ten sản phảm",
+      title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
+    },
+    {
+      title: "Màu",
+      dataIndex: "optionCarts",
+      key: "optionCarts",
+      render: (text) => <a>{text[0].optionValue}</a>,
+    },
+    {
+      title: "RAM",
+      dataIndex: "optionCarts",
+      key: "optionCarts",
+      render: (text) => <a>{text[1].optionValue}</a>,
     },
     {
       title: "Giá",
@@ -82,7 +94,7 @@ export const Cart = (props) => {
       render: (text) => <a>{formatPrice(text)}</a>,
     },
     {
-      title: "Số l[ợng",
+      title: "Số lượng",
       dataIndex: "quantity",
       key: "quantity",
       render: (_, record) => (
@@ -134,6 +146,7 @@ export const Cart = (props) => {
             quantity: x?.quantity,
             price: x?.price,
             total: x?.total,
+            optionCarts: x?.optionCarts
           }))
         );
         setTotalPrice(res?.data?.message);
