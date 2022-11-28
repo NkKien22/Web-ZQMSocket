@@ -33,15 +33,13 @@ function ClientManager() {
   pageSize: 10,
   keyworks: "",
   };
-  const [empdata, empdatachange] = useState(null); //Thêm link api get all user
-  const [data, setData] = useState([]); //Thêm link api get all user
-  const [openFormOrder, setOpenOrder] = useState(false);
+  const [data, setData] = useState([]);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState();
   const onChangePage = (page, pageSize) => {
     setCurrentPage(page);
-    getAllProduct(page, 10);
+    getAllUser(page, 10);
   };
   const LoadDetail = (id) => {
     navigate("/qltaikhoam/detail/" + id);
@@ -63,38 +61,17 @@ function ClientManager() {
         });
     }
   };
-  const getAllProduct = (page, pageSize) => {
+  const getAllUser = (page, pageSize) => {
     axios.post(`${URL_API}/User/get-all-users`, LoadAdmin)
       .then((res) => {
         setData(res.data.item);
-        setTotal(parseInt(res.data.message.split(" ")[0]));
+        setTotal(parseInt(res.data.message.split("")[0]));
       });
   };
 
   useEffect(() => {
-    getAllProduct(1, 10);
+    getAllUser(1, 10);
   }, []);
-
-  const onClose = () => {
-    setOpenOrder(false);
-  };
-
-  const onFinish = (values) => {
-    const payload = {
-      productName: values.username,
-      brandName: values.Gender,
-      importPrice: values.DOB,
-      price: values.Address,
-      quantity: values.PhoneNumber,
-      quantity: values.Email,
-      images: [],
-    };
-    axios.post(`${URL_API}/Product/add-product` ,payload).then((res) => {
-      onClose();
-    });
-    console.log(values);
-  };
-
   return (
     <div class="container-fluid">
       <div className="col-sm-2">
@@ -150,16 +127,15 @@ function ClientManager() {
                   {data.map((a, index) => (  
                     <tr>
                       <td>{index+1}</td>
-                      <img src={a.anh} class="img-thumbnail" width={50}></img>
+                      <img src={a.image} class="img-thumbnail" width={50}></img>
                       <td>{a.username}</td>
-                      <td>{a.Email}</td>
-                      <td>{a.PhoneNumber}</td>
-                      <td>{a.Address}</td>
-                      <td>{a.Gender}</td>
-                      <td>{a.DOB}</td>
+                      <td>{a.email}</td>
+                      <td>{a.phoneNumber}</td>
+                      <td>{a.address}</td>
+                      <td>{a.gender===true?'Nam':'Nữ'}</td>
+                      <td>{a.dob}</td>
                       <td>
                         <a
-                          href="qltaikhoan/detail"
                           class="view"
                           title="View"
                           data-toggle="tooltip"
