@@ -6,6 +6,7 @@ import {
   InputNumber,
   notification,
   Popconfirm,
+  Select,
   Table,
 } from "antd";
 import axios from "axios";
@@ -15,6 +16,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { formatPrice } from "../../helpers";
 import { Steps } from "antd";
 import { Col, Row } from "react-bootstrap";
+import { rest } from "lodash";
 
 const { Search } = Input;
 const { Step } = Steps;
@@ -29,6 +31,7 @@ export const Cart = (props) => {
   const [coupon, setCoupon] = useState(null);
   const [couponValid, setCouponValid] = useState(false);
   const [step, setStep] = useState(0);
+  const [option, setOption] = useState([]);
 
   const onChangeQuantity = (record, val) => {
     data.forEach((x) => {
@@ -36,19 +39,55 @@ export const Cart = (props) => {
     });
   };
 
-  const updateCart = (cartId, quantity) => {
+  const onChangeColor = (record, val) => {
+    data.forEach((x) => {
+      if (x.key === record.key) {
+        const colorOps = option.filter((x) => x.optionNameID === 1);
+        var newColor = {};
+        x.optionCarts.forEach((x) => {
+          if (x.optionNameID === 1) {
+            x = colorOps.find((x) => x.optionValueID === val);
+            newColor = x;
+          }
+        });
+        x.optionCarts[0] = newColor;
+      }
+    });
+  };
+
+  const onChangeRam = (record, val) => {
+    data.forEach((x) => {
+      if (x.key === record.key) {
+        const colorOps = option.filter((x) => x.optionNameID === 2);
+        var newRam = {};
+        x.optionCarts.forEach((x) => {
+          if (x.optionNameID === 1) {
+            x = colorOps.find((x) => x.optionValueID === val);
+            newRam = x;
+          }
+        });
+        x.optionCarts[1] = newRam;
+      }
+    });
+  };
+
+  const updateCart = (cartId, record) => {
     const payload = {
       cartId,
-      quantity,
+      quantity: record.quantity,
+      optionCarts: record.optionCarts,
     };
-    axios.put(`${URL_API}/CartItem/update-cartItem`, payload).then((res) => {
-      if (res)
-        notification.success({
-          message: "Cập nhật giỏ hàng thành công",
-        });
-    }).then(() => {
-      window.location.reload();
-    });
+    axios
+      .put(`${URL_API}/CartItem/update-cartItem`, payload)
+      .then((res) => {
+        if (res)
+          notification.success({
+            message: "Cập nhật giỏ hàng thành công",
+          });
+      })
+      .then(() => {
+        window.location.reload();
+      });
   };
 
   const handleDeleteItem = (cartId) => {
@@ -64,6 +103,7 @@ export const Cart = (props) => {
         window.location.reload();
       });
   };
+  console.log(data);
 
   const onClose = () => {
     setOpenOrder(false);
@@ -79,13 +119,68 @@ export const Cart = (props) => {
       title: "Màu",
       dataIndex: "optionCarts",
       key: "optionCarts",
-      render: (text) => <a>{text[0].optionValue}</a>,
+      // 1 => 2
+      render: (_, record) => (
+        <div>
+          <Select
+            style={{
+              width: 120,
+            }}
+            defaultValue={option
+              .filter((x) => x.optionNameID === 1)
+              .map((x) => ({
+                value: x.optionValueID,
+                label: x.optionValue,
+              }))
+              .find(
+                (x) =>
+                  x.value ===
+                  record.optionCarts.find((x) => x.optionNameID === 1)
+                    .optionValueID
+              )}
+            onChange={(val) => onChangeColor(record, val)}
+            options={option
+              .filter((x) => x.optionNameID === 1)
+              .map((x) => ({
+                value: x.optionValueID,
+                label: x.optionValue,
+              }))}
+          />
+        </div>
+      ),
     },
     {
       title: "RAM",
       dataIndex: "optionCarts",
       key: "optionCarts",
-      render: (text) => <a>{text[1].optionValue}</a>,
+      render: (_, record) => (
+        <div>
+          <Select
+            style={{
+              width: 120,
+            }}
+            defaultValue={option
+              .filter((x) => x.optionNameID === 2)
+              .map((x) => ({
+                value: x.optionValueID,
+                label: x.optionValue,
+              }))
+              .find(
+                (x) =>
+                  x.value ===
+                  record.optionCarts.find((x) => x.optionNameID === 2)
+                    .optionValueID
+              )}
+            onChange={(val) => onChangeRam(record, val)}
+            options={option
+              .filter((x) => x.optionNameID === 2)
+              .map((x) => ({
+                value: x.optionValueID,
+                label: x.optionValue,
+              }))}
+          />
+        </div>
+      ),
     },
     {
       title: "Giá",
@@ -105,12 +200,6 @@ export const Cart = (props) => {
             defaultValue={record.quantity}
             onChange={(val) => onChangeQuantity(record, val)}
           />
-          <Button
-            className="ms-2"
-            onClick={() => updateCart(record.key, record.quantity)}
-          >
-            Cập nhật
-          </Button>
         </div>
       ),
     },
@@ -119,6 +208,21 @@ export const Cart = (props) => {
       dataIndex: "total",
       key: "total",
       render: (text) => <a>{formatPrice(text)}</a>,
+    },
+    {
+      title: "Cap nhat",
+      dataIndex: "update",
+      key: "update",
+      render: (_, record) => (
+        <div>
+          <Button
+            className="ms-2"
+            onClick={() => updateCart(record.key, record)}
+          >
+            Cập nhật
+          </Button>
+        </div>
+      ),
     },
     {
       title: "Xóa",
@@ -146,11 +250,17 @@ export const Cart = (props) => {
             quantity: x?.quantity,
             price: x?.price,
             total: x?.total,
-            optionCarts: x?.optionCarts
+            optionCarts: x?.optionCarts,
           }))
         );
         setTotalPrice(res?.data?.message);
       });
+  };
+
+  const getAllOptions = (userId) => {
+    axios.get(`${URL_API}/CartItem/get-all-option`).then((res) => {
+      setOption(res.data);
+    });
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -169,6 +279,10 @@ export const Cart = (props) => {
       .map((x) => ({
         cartID: x.key,
         price: x.price,
+        optionCarts: x.optionCarts.map((x) => ({
+          optionNameID: x.optionNameID,
+          optionValueID: x.optionValueID,
+        })),
       }));
     const payload = {
       codeCoupon: couponValid ? coupon : null,
@@ -198,9 +312,12 @@ export const Cart = (props) => {
     axios
       .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)
       .then((res) => {
-        if (res?.data?.status === "200") {
-          setCoupon(value);
-          setCouponValid(true);
+        if (res?.data?.success) {
+          console.log(res.data)
+          notification.success({
+            message: "Áp dụng mã giảm giá thành c4ng",
+          });
+          setTotalPrice((prev) => prev - res.data.item.couponValue);
         } else {
           setCouponValid(false);
           notification.warning({
@@ -212,6 +329,7 @@ export const Cart = (props) => {
 
   useEffect(() => {
     if (userId) getCarts(userId);
+    getAllOptions();
   }, [userId]);
 
   return (
@@ -232,18 +350,30 @@ export const Cart = (props) => {
         dataSource={data}
         pagination={false}
       />
-      <h4 className="ms-auto mt-3">Tổng tiền: {formatPrice(totalPrice)}</h4>
-      <Button
-        type="primary"
-        disabled={selectedRowKeys.length === 0}
-        size="large"
-        onClick={() => {
-          setOpenOrder(true);
-          setStep(1);
-        }}
-      >
-        Dặt hàng
-      </Button>
+      {data.length > 0 && (
+        <>
+          <div className="mt-3">
+            <Search
+              placeholder="Mã giảm giá"
+              onSearch={onSearch}
+              style={{ width: 200 }}
+              enterButton="Áp dụng"
+            />
+          </div>
+          <h4 className="ms-auto mt-3">Tổng tiền: {formatPrice(totalPrice)}</h4>
+          <Button
+            type="primary"
+            disabled={selectedRowKeys.length === 0}
+            size="large"
+            onClick={() => {
+              setOpenOrder(true);
+              setStep(1);
+            }}
+          >
+            Dặt hàng
+          </Button>
+        </>
+      )}
       <Drawer
         title="Thong tin dặt hàng"
         placement="right"
@@ -296,14 +426,6 @@ export const Cart = (props) => {
           </Form.Item>
           <Form.Item name="description">
             <Input placeholder="Mo tả" />
-          </Form.Item>
-          <Form.Item name="codeCoupon">
-            <Search
-              placeholder="Mã giảm giá"
-              onSearch={onSearch}
-              style={{ width: 200 }}
-              enterButton="Áp dụng"
-            />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>
