@@ -4,7 +4,7 @@ import { Button, Moda } from "react-bootstrap";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import VisibilityTwoToneIcon from "@mui/icons-material/VisibilityTwoTone";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
-import { Drawer, Form, Menu, Pagination, Input } from "antd";
+import { Drawer, Form, Menu, Pagination, Input, message } from "antd";
 import {
   AppstoreOutlined,
   MailOutlined,
@@ -12,6 +12,7 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { URL_API } from "../../utils/common";
+
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -37,12 +38,19 @@ function ClientManager() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState();
-  const onChangePage = (page, pageSize) => {
+  const onChangePage = (page) => {
     setCurrentPage(page);
-    getAllUser(page, 10);
+    LoadAdmin.pageNum=page;//Phân trang bằng cách truyền vào giá trị page vào LoadAdmin.pageNum
+    getAllUser();
   };
   const LoadDetail = (id) => {
-    navigate("/qltaikhoam/detail/" + id);
+    var a=0;
+    for (var i = 0; i < data.length; i++) {//Lấy ra index theo id
+      if(data[i].id==id){
+        a=i;
+      }
+    }
+    window.alert("Chi tiết tài khoản: "+data[a].username)
   };
   const LoadEdit = (id) => {
     navigate("/qltaikhoam/edit/" + id);
@@ -61,16 +69,16 @@ function ClientManager() {
         });
     }
   };
-  const getAllUser = (page, pageSize) => {
+  const getAllUser = () => {
     axios.post(`${URL_API}/User/get-all-users`, LoadAdmin)
       .then((res) => {
         setData(res.data.item);
-        setTotal(parseInt(res.data.message.split("")[0]));
+        setTotal(parseInt(res.data.message.split(" ")[0]));
       });
   };
 
   useEffect(() => {
-    getAllUser(1, 10);
+    getAllUser();
   }, []);
   return (
     <div class="container-fluid">
@@ -136,11 +144,11 @@ function ClientManager() {
                       <td>{a.dob}</td>
                       <td>
                         <a
-                          class="view"
-                          title="View"
-                          data-toggle="tooltip"
-                          style={{ color: "#10ab80",margin:"10px"}}
-                          onClick={() => { LoadDetail(a.id) }}
+                        class="view"
+                        title="View"
+                        data-toggle="tooltip"
+                        style={{ color: "#10ab80",margin:"10px"}}
+                        onClick={() => { LoadDetail(a.id) }}
                         >
                           <VisibilityTwoToneIcon/>
                         </a>
