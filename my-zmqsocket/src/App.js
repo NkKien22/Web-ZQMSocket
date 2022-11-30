@@ -20,6 +20,7 @@ import ClientManager from "./components/ManagerClient/ManagerClient";
 import UserDetail from "./components/ManagerClient/Detail";
 import UserEdit from "./components/ManagerClient/Edit";
 import Profile from "./pages/Profile";
+import { MyOrder } from "./pages/my-order";
 
 function App() {
   const [loginInfo, setLoginInfo] = useState();
@@ -95,6 +96,7 @@ function App() {
             }
           />
           <Route path="/cart" element={<Cart userId={loginInfo?.id} />} />
+          <Route path="/my-order" element={<MyOrder userId={loginInfo?.id}/>} />
           <Route path="/QLSanPham" element={<ProductManager />} />
           <Route path="/QLSanPham/create" element={<PrCreate />}></Route>
           <Route path="/QLSanPham/detail/:pid" element={<PrDetail />}></Route>

@@ -32,6 +32,8 @@ export const Cart = (props) => {
   const [couponValid, setCouponValid] = useState(false);
   const [step, setStep] = useState(0);
   const [option, setOption] = useState([]);
+  const [disabledCoupon, setDisabledCoupon] = useState(false);
+
 
   const onChangeQuantity = (record, val) => {
     data.forEach((x) => {
@@ -285,7 +287,7 @@ export const Cart = (props) => {
         })),
       }));
     const payload = {
-      codeCoupon: couponValid ? coupon : null,
+      codeCoupon: coupon,
       userID: userId,
       description: values.description,
       fullName: values.fullName,
@@ -303,6 +305,7 @@ export const Cart = (props) => {
           });
           setOpenOrder(false);
           setStep(3);
+          window.location.reload();
         }
       })
       .finally(() => setLoading(true));
@@ -310,18 +313,19 @@ export const Cart = (props) => {
 
   const onSearch = (value) => {
     axios
-      .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)
+      .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)   
       .then((res) => {
         if (res?.data?.success) {
-          console.log(res.data)
+          setCoupon(value);
           notification.success({
-            message: "Áp dụng mã giảm giá thành c4ng",
+            message: "Áp dụng mã giảm giá thành công",
           });
+          setDisabledCoupon(true);
           setTotalPrice((prev) => prev - res.data.item.couponValue);
         } else {
           setCouponValid(false);
           notification.warning({
-            message: "Mã giảm giá khong hợp lệ, vui lòng nhập lại hoặc bỏ qua",
+            message: "Mã giảm giá không hợp lệ, vui lòng nhập lại hoặc bỏ qua",
           });
         }
       });
@@ -358,6 +362,7 @@ export const Cart = (props) => {
               onSearch={onSearch}
               style={{ width: 200 }}
               enterButton="Áp dụng"
+              disabled={disabledCoupon}
             />
           </div>
           <h4 className="ms-auto mt-3">Tổng tiền: {formatPrice(totalPrice)}</h4>
@@ -404,7 +409,7 @@ export const Cart = (props) => {
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập ddiaj chỉ!",
+                message: "Vui lòng nhập địa chỉ!",
               },
             ]}
           >

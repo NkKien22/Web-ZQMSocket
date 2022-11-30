@@ -86,6 +86,14 @@ export const Header = (props) => {
         },
         {
           label: (
+            <Link to="/my-order" rel="noopener noreferrer">
+              Đơn hàng của tôi
+            </Link>
+          ),
+          key: "1",
+        },
+        {
+          label: (
             <a target="_blank" rel="noopener noreferrer" onClick={logoutUser}>
               Đăng xuất
             </a>
