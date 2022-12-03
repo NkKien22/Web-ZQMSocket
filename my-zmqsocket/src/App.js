@@ -29,7 +29,7 @@ function App() {
   const [data, setData] = useState();
   const [total, setTotal] = useState();
   const [countCart, setCountCart] = useState();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [dataSearch, setDataSearch] = useState([]);
   useEffect(() => {
     const tokenLogin = Cookies.get(TOKEN_KEY);
     if (!tokenLogin) {
@@ -82,9 +82,10 @@ function App() {
           total={total}
           countCart={countCart}
           data={data}
+          setDataSearch={setDataSearch}
         />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home dataSearch={dataSearch} />} />
           <Route
             path="/product/:productID"
             element={

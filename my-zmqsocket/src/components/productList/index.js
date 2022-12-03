@@ -1,4 +1,4 @@
-import { Row, Col, Card, Button, Spin } from "antd";
+import { Row, Col, Card, Button, Spin, Tag } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { formatPrice } from "../../helpers";
@@ -59,7 +59,7 @@ export const ProductList = (props) => {
 
   const onFilterByCategory = (tacagoryName) => {
     getProductByCategory(1, 12, tacagoryName);
-  }
+  };
 
   return (
     <div className="container mt-5">
@@ -67,7 +67,12 @@ export const ProductList = (props) => {
         <Col style={{ fontWeight: "bold" }}>ĐIỆN THOẠI NỔI BẬT NHẤT</Col>
         <Col className="ms-auto">
           {dataCategory.map((x) => (
-            <Button style={{ marginLeft: 10 }} onClick={() => onFilterByCategory(x.tacagoryName)}>{x.tacagoryName}</Button>
+            <Button
+              style={{ marginLeft: 10 }}
+              onClick={() => onFilterByCategory(x.tacagoryName)}
+            >
+              {x.tacagoryName}
+            </Button>
           ))}
         </Col>
       </Row>
@@ -76,7 +81,7 @@ export const ProductList = (props) => {
           <Spin className="text-center" />
         ) : (
           <>
-            {(dataSearch || data).map((x) => {
+            {((dataSearch.length > 0 && dataSearch) || data).map((x) => {
               return (
                 <Col>
                   <Link to={`/product/${x.productID}`}>
@@ -91,7 +96,9 @@ export const ProductList = (props) => {
                         />
                       }
                     >
-                      <div className="text-center fw-bold">{x.productName}</div>
+                      <div className="text-center fw-bold">
+                        {x.productName} <Tag color="#108ee9">SL : {x.quantity}</Tag>
+                      </div>
                       <div className="d-flex">
                         <span style={{ color: "red", fontWeight: "bold" }}>
                           {formatPrice(x.price)}
