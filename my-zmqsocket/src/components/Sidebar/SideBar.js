@@ -1,183 +1,38 @@
-import { NavLink } from "react-router-dom";
-import { FaBars, FaHome, FaLock, FaMoneyBill, FaUser } from "react-icons/fa";
-import { BiSearch } from "react-icons/bi";
-import { BiCog } from "react-icons/bi";
-import { BsReceiptCutoff } from "react-icons/bs";
-import { AiFillPieChart } from "react-icons/ai";
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { AiFillDatabase } from "react-icons/ai";
-import { HiUserGroup } from "react-icons/hi2";
-import SidebarMenu from "./SidebarMenu";
-const routes = [
-  {
-    path: "/",
-    name: "Trang chủ",
-    icon: <FaHome />,
-  },
-  {
-    path: "/thongke",
-    name: "Thống kê",
-    icon: <AiFillPieChart />,
-  },
-  {
-    path: "/qlsanpham",
-    name: "Quản lý sản phẩm",
-    icon: <AiFillDatabase />,
-  },{
-    path: "/qltaikhoan",
-    name: "Quản lý khách hàng",
-    icon: <HiUserGroup />,
-  },
-  {
-    path: "/qlhoadon",
-    name: "Hóa đơn",
-    icon: <BsReceiptCutoff/>,
-  },
-  {
-    path: "/profile",
-    name: "Profile",
-    icon: <FaUser />,
-  },
-  {
-    path: "/settings",
-    name: "Cài đặt",
-    icon: <BiCog />,
-  },
-];
+import { Menu } from "antd";
 
-const SideBar = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
-  const inputAnimation = {
-    hidden: {
-      width: 0,
-      padding: 0,
-      transition: {
-        duration: 0.2,
-      },
-    },
-    show: {
-      width: "140px",
-      padding: "5px 15px",
-      transition: {
-        duration: 0.2,
-      },
-    },
-  };
-
-  const showAnimation = {
-    hidden: {
-      width: 0,
-      opacity: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-    show: {
-      opacity: 1,
-      width: "auto",
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
-
+export const SideBar = (props) => {
+  const { isActive } = props;
+  function getItem(label, key, icon, children, type) {
+    return {
+      key,
+      icon,
+      children,
+      label,
+      type,
+    };
+  }
+  const items = [
+    getItem("Quản lý sản phẩm", "1"),
+    getItem("Quản lý khách hàng", "2"),
+  ];
+  const onChangeUrl = (data) => {
+    if(data.key === '1') {
+      window.location.replace('/qlsanpham');
+    }
+    if(data.key === '2') {
+      window.location.replace('/qltaikhoan');
+    }
+  }
   return (
-    <>
-      <div className="main-container">
-        <motion.div
-          animate={{
-            width: isOpen ? "200px" : "45px",
-
-            transition: {
-              duration: 0.5,
-              type: "spring",
-              damping: 10,
-            },
-          }}
-          className={`sidebar `}
-        >
-          <div className="top_section">
-            <AnimatePresence>
-              {isOpen && (
-                <motion.h1
-                  variants={showAnimation}
-                  initial="hidden"
-                  animate="show"
-                  exit="hidden"
-                  className="logo"
-                >
-                  ZQMSocket
-                </motion.h1>
-              )}
-            </AnimatePresence>
-
-            <div className="bars">
-              <FaBars onClick={toggle} />
-            </div>
-          </div>
-          <div className="search">
-            <div className="search_icon">
-              <BiSearch />
-            </div>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.input
-                  initial="hidden"
-                  animate="show"
-                  exit="hidden"
-                  variants={inputAnimation}
-                  type="text"
-                  placeholder="Tìm kiếm"
-                />
-              )}
-            </AnimatePresence>
-          </div>
-          <section className="routes">
-            {routes.map((route, index) => {
-              if (route.subRoutes) {
-                return (
-                  <SidebarMenu
-                    setIsOpen={setIsOpen}
-                    route={route}
-                    showAnimation={showAnimation}
-                    isOpen={isOpen}
-                  />
-                );
-              }
-
-              return (
-                <NavLink
-                  to={route.path}
-                  key={index}
-                  className="link"
-                  activeClassName="active"
-                >
-                  <div className="icon">{route.icon}</div>
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        variants={showAnimation}
-                        initial="hidden"
-                        animate="show"
-                        exit="hidden"
-                        className="link_text"
-                      >
-                        {route.name}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </NavLink>
-              );
-            })}
-          </section>
-        </motion.div>
-
-        <main>{children}</main>
-      </div>
-    </>
+    <div className="col-sm-2">
+      <Menu
+        onClick={onChangeUrl}
+        style={{ width: 256 }}
+        defaultSelectedKeys={[isActive]}
+        defaultOpenKeys={["sub1"]}
+        mode="inline"
+        items={items}
+      />
+    </div>
   );
 };
-
-export default SideBar;

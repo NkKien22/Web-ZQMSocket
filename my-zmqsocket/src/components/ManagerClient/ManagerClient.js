@@ -12,7 +12,7 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { URL_API } from "../../utils/common";
-
+import { SideBar } from "../Sidebar/SideBar";
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -44,16 +44,19 @@ function ClientManager() {
     getAllUser();
   };
   const LoadDetail = (id) => {
-    var a=0;
-    for (var i = 0; i < data.length; i++) {//Lấy ra index theo id
-      if(data[i].id==id){
-        a=i;
-      }
-    }
-    window.alert("Chi tiết tài khoản: "+data[a].username)
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState();
+  const onChangePage = (page, pageSize) => {
+    setCurrentPage(page);
+    getAllUser(page, 10);
+  };
+  const LoadDetail = (id) => {
+    navigate("/qltaikhoan/detail/" + id);
+  };
   };
   const LoadEdit = (id) => {
-    navigate("/qltaikhoam/edit/" + id);
+    navigate("/qltaikhoan/edit/" + id);
   };
   const Removefunction = (id) => {
     if (window.confirm("Bạn có chắn chắn muốn xóa tài khoản này?")) {
@@ -83,16 +86,9 @@ function ClientManager() {
   return (
     <div class="container-fluid">
       <div className="col-sm-2">
-        <Menu
-          // onClick={onClick}
-          style={{ width: 256 }}
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          items={items}
-        />
+        <SideBar isActive="2"/>
       </div>
-      <div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded">
+      <div className="crud shadow-lg p-5 bg-body rounded col-sm-10">
         <div class="row ">
           <div class="col-sm-3 mt-5 mb-4 text-gred">
             <div className="search">

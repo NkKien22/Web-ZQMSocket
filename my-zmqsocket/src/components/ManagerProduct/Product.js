@@ -20,6 +20,10 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { URL_API } from "../../utils/common";
+import { SideBar } from "../Sidebar/SideBar";
+
+const { Search } = Input;
+
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -36,6 +40,7 @@ const items = [
 function ProductManager() {
   const [empdata, empdatachange] = useState(null); //Thêm link api get all user
   const [data, setData] = useState([]); //Thêm link api get all user
+  const [dataSearch, setDataSearch] = useState([]); //Thêm link api get all user
   const [openFormAdd, setOpenFormAdd] = useState(false);
   const [openFormEdit, setOpenFormEdit] = useState(false);
   const navigate = useNavigate();
@@ -87,6 +92,16 @@ function ProductManager() {
     setOpenFormEdit(false);
   };
 
+  const onSearch = (value) => {
+    axios
+      .get(
+        `${URL_API}/Product/get-product?pageNum=1&pageSize=12&keyworks=${value}`
+      )
+      .then((res) => {
+        setDataSearch(res.data.item);
+      });
+  };
+
   const onFinish = (values) => {
     const payload = {
       productName: values.productName,
@@ -110,28 +125,16 @@ function ProductManager() {
   return (
     <div class="row">
       <div className="col-sm-2">
-        <Menu
-          // onClick={onClick}
-          style={{ width: 256 }}
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          items={items}
-        />
+        <SideBar isActive="1"/>
       </div>
       <div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded col-sm-10">
         <div class="row ">
           <div class="col-sm-3 mt-5 mb-4 text-gred">
-            <div className="search">
-              <form class="form-inline">
-                <input
-                  class="form-control mr-sm-2"
-                  type="search"
-                  placeholder="Tìm kiếm"
-                  aria-label="Search"
-                />
-              </form>
-            </div>
+            <Search
+              placeholder="Tìm kiếm"
+              onSearch={onSearch}
+              enterButton
+            />
           </div>
           <div
             class="col-sm-3 offset-sm-2 mt-5 mb-4 text-gred"
@@ -167,7 +170,7 @@ function ProductManager() {
                 </tr>
               </thead>
               <tbody>
-                {data.map((a, index) => (
+                {((dataSearch.length > 0 && dataSearch) || data).map((a, index) => (
                   <tr>
                     <td>{index + 1}</td>
                     <img src={a.anh} class="img-thumbnail" width={50}></img>

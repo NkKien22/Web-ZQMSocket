@@ -1,4 +1,4 @@
-import { Button, notification, Table, Tag } from "antd";
+import { Button, Modal, notification, Table, Tag } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { formatPrice } from "../../helpers";
@@ -7,11 +7,12 @@ import { URL_API } from "../../utils/common";
 export const MyOrder = (props) => {
   const { userId } = props;
   const [data, setData] = useState([]);
+  const [dataOrderDetail, setDataOrderDetail] = useState([]);
+  const [openModalDetail, setOpenModalDetail] = useState(false);
   const getOrder = (userId) => {
     axios
       .get(`${URL_API}/Order/get-order-user?userId=${userId}`)
       .then((res) => {
-        console.log(res);
         setData(
           res?.data?.item.map((x) => ({
             key: x?.orderId,
@@ -33,6 +34,53 @@ export const MyOrder = (props) => {
       window.location.reload();
     });
   };
+
+  const viewDetail = (id) => {
+    setOpenModalDetail(true);
+    axios.get(`${URL_API}/Order/get-order-detail?orderId=${id}`).then((res) => {
+      setDataOrderDetail(
+        res?.data?.item.map((x) => ({
+          key: x?.orderId,
+          productName: x?.productName,
+          quantity: x?.quantity,
+          unitPrice: x?.unitPrice,
+          optionCarts: x?.optionCarts,
+        }))
+      );
+    });
+  };
+
+  const columnsOrderDetail = [
+    {
+      title: "Tên san pham",
+      dataIndex: "productName",
+      key: "productName",
+    },
+    {
+      title: "So luong",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Gia",
+      dataIndex: "unitPrice",
+      key: "unitPrice",
+      render: (text) => <a>{formatPrice(text)}</a>,
+    },
+    {
+      title: "Mau",
+      dataIndex: "optionCarts",
+      key: "optionCarts",
+      render: (text) => <a>{text[0].optionValue}</a>,
+    },
+    {
+      title: "RAM",
+      dataIndex: "optionCarts",
+      key: "optionCarts",
+      render: (text) => <a>{text[1].optionValue}</a>,
+    },
+  ];
+
 
   const columns = [
     {
@@ -78,12 +126,16 @@ export const MyOrder = (props) => {
         <div>
           <Button
             className="ms-2"
-            // onClick={() => viewDetail(record.key, record)}
+            onClick={() => viewDetail(record.key, record)}
           >
             Xem
           </Button>
-          
-          <Button className="ms-2" onClick={() => cancelOrder(record.key)} disabled={record.orderStatus === "Cancel"}>
+
+          <Button
+            className="ms-2"
+            onClick={() => cancelOrder(record.key)}
+            disabled={record.orderStatus === "Cancel"}
+          >
             Hủy đơn hàng
           </Button>
         </div>
@@ -102,6 +154,22 @@ export const MyOrder = (props) => {
         dataSource={data}
         pagination={false}
       />
+      <Modal
+        title="Chi tiet don hang"
+        open={openModalDetail}
+        onOk={() => setOpenModalDetail(false)}
+        onCancel={() => setOpenModalDetail(false)}
+        width={1000}
+        okText="Đóng"
+        cancelButtonProps={{ style: { display: 'none' } }}
+      >
+        <Table
+          className="mt-4"
+          columns={columnsOrderDetail}
+          dataSource={dataOrderDetail}
+          pagination={false}
+        />
+      </Modal>
     </div>
   );
 };
