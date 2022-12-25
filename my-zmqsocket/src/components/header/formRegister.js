@@ -69,40 +69,40 @@ export const FormRegister = (props) => {
       autoComplete="off"
     >
       <Form.Item
-        label="Username"
+        label="Tên tài khoản"
         name="username"
         hasFeedback
         rules={[
           {
             required: true,
-            message: 'Please input your username!',
+            message: 'Vui lòng nhập tên tài khoản!',
           },
         ]}
       >
-        <Input placeholder='Vui lòng nhập username' />
+        <Input placeholder='Vui lòng nhập tài khoản' />
       </Form.Item>
       <Form.Item
-        label="Password"
+        label="Mật khẩu"
         name="password"
         hasFeedback
         rules={[
           {
             required: true,
-            message: 'Please input your password!',
+            message: 'Vui lòng nhập mật khẩu!',
           },
         ]}
       >
-        <Input.Password placeholder='Vui lòng nhập password' />
+        <Input.Password placeholder='Vui lòng nhập Mật khẩu' />
       </Form.Item>
       <Form.Item
         name="confirm"
-        label="Confirm Password"
+        label="Nhập lại mật khẩu"
         dependencies={['password']}
         hasFeedback
         rules={[
           {
             required: true,
-            message: 'Please confirm your password!',
+            message: 'Vui lòng nhập lại mật khẩu!',
           },
           ({ getFieldValue }) => ({
             validator(_, value) {
@@ -171,7 +171,7 @@ export const FormRegister = (props) => {
       </Form.Item> */}
       <Form.Item>
         <Button type="primary" htmlType="submit">
-          Submit
+          Đăng kí
         </Button>
       </Form.Item>
     </Form>

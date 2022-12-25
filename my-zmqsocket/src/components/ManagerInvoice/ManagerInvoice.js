@@ -25,8 +25,8 @@ function getItem(label, key, icon, children, type) {
 //     getItem("Option 6", "6"),
 //   ]),
 // ];
-function ClientManager() {
-  const LoadAdmin = {
+function ClientInvoice() {
+  const LoadInvoice = {
   pageNum: 1,
   pageSize: 10,
   keyworks: "",
@@ -37,43 +37,28 @@ function ClientManager() {
   const [total, setTotal] = useState();
   const onChangePage = (page, pageSize) => {
     setCurrentPage(page);
-    getAllUser(page, 10);
+    getAllInvoice(page, 10);
   };
-  // const LoadDetail = (id) => {
-  //   navigate("/qltaikhoan/detail/" + id);
-  // };
-  // const LoadEdit = (id) => {
-  //   navigate("/qltaikhoan/edit/" + id);
-  // };
-  // const Removefunction = (id) => {
-  //   if (window.confirm("Bạn có chắn chắn muốn xóa tài khoản này?")) {
-  //     fetch("http://localhost:8000/employee/" + id, {
-  //       method: "DELETE",
-  //     })
-  //       .then((res) => {
-  //         alert("Removed successfully.");
-  //         window.location.reload();
-  //       })
-  //       .catch((err) => {
-  //         console.log(err.message);
-  //       });
-  //   }
-  // };
-  const getAllUser = (page, pageSize) => {
-    axios.post(`${URL_API}/User/get-all-users`, LoadAdmin)
+
+  const getAllInvoice = () => {
+    const start = "2020-12-02 10:10:10";
+    const end = "2023-12-02 10:10:10";
+    axios
+      .get(
+        `${URL_API}/Order/get-order-revenue-statistics?Start=${start}&End=${end}`
+      )
       .then((res) => {
         setData(res.data.item);
-        setTotal(parseInt(res.data.message.split("")[0]));
       });
   };
 
   useEffect(() => {
-    getAllUser(1, 10);
+    getAllInvoice();
   }, []);
   return (
     <div class="container-fluid">
       <div className="col-sm-2">
-        <SideBar isActive="2"/>
+        <SideBar isActive="4"/>
       </div>
       <div className="crud shadow-lg p-5 bg-body rounded col-sm-10">
         <div class="row ">
@@ -94,7 +79,7 @@ function ClientManager() {
             style={{ color: "green" }}
           >
             <h2>
-              <b>Quản lí khách hàng</b>
+              <b>Quản lí hóa đơn</b>
             </h2>
           </div>
         </div>
@@ -104,27 +89,24 @@ function ClientManager() {
               <thead>
                 <tr>
                   <th>STT</th>
-                  <th>Hình ảnh</th>
-                  <th>Tên người dùng</th>
-                  <th>Email</th>
+                  <th>Tên khách hàng</th>
                   <th>Số điện thoại</th>
                   <th>Địa chỉ</th>
-                  <th>Giới tính</th>
-                  <th>Ngày sinh</th>
-                  <th>Tùy chọn</th>
+                  <th>Tổng Tiền</th>
+                  <th>Lợi nhuận</th>
+                  <th>Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
                   {data.map((a, index) => (  
                     <tr>
                       <td>{index+1}</td>
-                      <img src={a.image} class="img-thumbnail" width={50}></img>
-                      <td>{a.username}</td>
-                      <td>{a.email}</td>
+                      <td>{a.fullName}</td>
                       <td>{a.phoneNumber}</td>
                       <td>{a.address}</td>
-                      <td>{a.gender===true?'Nam':'Nữ'}</td>
-                      <td>{a.dob}</td>
+                      <td>{a.total}</td>
+                      <td>{a.profit}</td>
+                      <td>{a.orderStatus}</td>
                       <td>
                       </td>
                   </tr>
@@ -145,4 +127,4 @@ function ClientManager() {
     </div>
   );
 }
-export default ClientManager;
+export default ClientInvoice;

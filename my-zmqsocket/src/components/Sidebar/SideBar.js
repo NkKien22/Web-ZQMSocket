@@ -14,6 +14,9 @@ export const SideBar = (props) => {
   const items = [
     getItem("Quản lý sản phẩm", "1"),
     getItem("Quản lý khách hàng", "2"),
+    getItem("Quản lý mã giảm giá", "3"),
+    getItem("Quản lý hóa đơn", "4"),
+    getItem("Quản lý khuyến mãi", "5"),
   ];
   const onChangeUrl = (data) => {
     if(data.key === '1') {
@@ -21,6 +24,15 @@ export const SideBar = (props) => {
     }
     if(data.key === '2') {
       window.location.replace('/qltaikhoan');
+    }
+    if(data.key === '3') {
+      window.location.replace('/qlkhuyenmai');
+    }
+    if(data.key === '4') {
+      window.location.replace('/qlhoadon');
+    }
+    if(data.key === '5') {
+      window.location.replace('/promotion');
     }
   }
   return (
