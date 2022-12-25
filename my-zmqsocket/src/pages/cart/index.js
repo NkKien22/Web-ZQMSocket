@@ -105,7 +105,7 @@ export const Cart = (props) => {
         window.location.reload();
       });
   };
-  console.log(data);
+  //console.log(data);
 
   const onClose = () => {
     setOpenOrder(false);
@@ -212,7 +212,7 @@ export const Cart = (props) => {
       render: (text) => <a>{formatPrice(text)}</a>,
     },
     {
-      title: "Cap nhat",
+      title: "Cập nhật",
       dataIndex: "update",
       key: "update",
       render: (_, record) => (
@@ -256,6 +256,7 @@ export const Cart = (props) => {
           }))
         );
         setTotalPrice(res?.data?.message);
+        // console.log(res);
       });
   };
 
@@ -313,22 +314,37 @@ export const Cart = (props) => {
 
   const onSearch = (value) => {
     axios
-      .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)   
-      .then((res) => {
+    .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)   
+    .then((res) => {
+      // console.log("minimunOrderValue",res.data.item.minimunOrderValue)
+      if(res.data.item.minimunOrderValue > totalPrice){
+         console.log("Mã giảm giá lớn hơn giá trị đơn hàng")
+         notification.warning({
+          message: "Đơn hàng chưa đạt tới " + res.data.item.minimunOrderValue,
+         })
+      } else {
         if (res?.data?.success) {
           setCoupon(value);
-          notification.success({
+          notification.success({ 
             message: "Áp dụng mã giảm giá thành công",
           });
           setDisabledCoupon(true);
           setTotalPrice((prev) => prev - res.data.item.couponValue);
+         const total_sale = totalPrice - res.data.item.minimunOrderValue
+         if(total_sale >= 0){
+          totalPrice = total_sale
+         } else {
+          totalPrice = 0
+         }
         } else {
           setCouponValid(false);
           notification.warning({
             message: "Mã giảm giá không hợp lệ, vui lòng nhập lại hoặc bỏ qua",
           });
         }
-      });
+      }
+      }
+     );
   };
 
   useEffect(() => {
@@ -375,12 +391,12 @@ export const Cart = (props) => {
               setStep(1);
             }}
           >
-            Dặt hàng
+            Đặt hàng
           </Button>
         </>
       )}
       <Drawer
-        title="Thong tin dặt hàng"
+        title="Thông tin dặt hàng"
         placement="right"
         onClose={onClose}
         open={openFormOrder}
@@ -398,11 +414,11 @@ export const Cart = (props) => {
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập họ và t3n!",
+                message: "Vui lòng nhập họ và tên!",
               },
             ]}
           >
-            <Input placeholder="Họ và ten" />
+            <Input placeholder="Họ và Tên" />
           </Form.Item>
           <Form.Item
             name="address"
@@ -413,24 +429,24 @@ export const Cart = (props) => {
               },
             ]}
           >
-            <Input placeholder="Ddia chi" />
+            <Input placeholder="Địa chỉ" />
           </Form.Item>
           <Form.Item
             name="phoneNumber"
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập SDT",
+                message: "Vui lòng nhập số điện thoại",
               },
             ]}
           >
-            <Input type="number" placeholder="SDT" />
+            <Input type="number" placeholder="Số điện thoại" />
           </Form.Item>
           <Form.Item name="email">
             <Input type="email" placeholder="Email" />
           </Form.Item>
           <Form.Item name="description">
-            <Input placeholder="Mo tả" />
+            <Input placeholder="Mô tả" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>

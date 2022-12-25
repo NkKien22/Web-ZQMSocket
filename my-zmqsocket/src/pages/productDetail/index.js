@@ -84,7 +84,7 @@ export const ProductDetail = (props) => {
         if (res) {
           setCountProduct(countProduct + 1);
           notification.success({
-            message: "Them vào giỏ hàng thành công",
+            message: "Thêm vào giỏ hàng thành công",
           });
         }
       })

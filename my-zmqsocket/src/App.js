@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProductDetail } from "./pages/productDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Home } from "./components/home";
@@ -10,17 +10,14 @@ import jwt_decode from "jwt-decode";
 import { TOKEN_KEY, URL_API } from "./utils/common";
 import { Cart } from "./pages/cart";
 import axios from "axios";
-import SideBar from "./components/Sidebar/SideBar";
 import ProductManager from "./components/ManagerProduct/Product";
-import PrCreate from "./components/ManagerProduct/Create";
-import PrDetail from "./components/ManagerProduct/Detail";
-import PrEdit from "./components/ManagerProduct/Edit";
-import ThongKe from "./components/ThongKe/ThongKe";
 import ClientManager from "./components/ManagerClient/ManagerClient";
-import UserDetail from "./components/ManagerClient/Detail";
-import UserEdit from "./components/ManagerClient/Edit";
 import Profile from "./pages/Profile";
 import { MyOrder } from "./pages/my-order";
+import ManagerCoupon from "./components/ManagerCoupon/ManagerCoupon";
+import ManagerInvoice from "./components/ManagerInvoice/ManagerInvoice";
+import Promotion from "./components/Promotion/promotion";
+
 
 function App() {
   const [loginInfo, setLoginInfo] = useState();
@@ -99,17 +96,11 @@ function App() {
           <Route path="/cart" element={<Cart userId={loginInfo?.id} />} />
           <Route path="/my-order" element={<MyOrder userId={loginInfo?.id}/>} />
           <Route path="/QLSanPham" element={<ProductManager />} />
-          <Route path="/QLSanPham/create" element={<PrCreate />}></Route>
-          <Route path="/QLSanPham/detail/:pid" element={<PrDetail />}></Route>
-          <Route path="/QLSanPham/edit/:pid" element={<PrEdit />}></Route>
-          <Route path="/thongke" element={<ThongKe />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/qltaikhoan" element={<ClientManager />} />
-          <Route
-            path="/qltaikhoan/detail/:uid"
-            element={<UserDetail />}
-          ></Route>
-          <Route path="/qltaikhoan/edit/:uid" element={<UserEdit />}></Route>
+          <Route path="/qlkhuyenmai" element={<ManagerCoupon />} />
+          <Route path="/qlhoadon" element={<ManagerInvoice />} />
+          <Route path="/promotion" element={<Promotion />} />
         </Routes>
       </div>
     </BrowserRouter>

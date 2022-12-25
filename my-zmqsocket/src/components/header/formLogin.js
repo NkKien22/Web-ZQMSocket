@@ -47,11 +47,11 @@ export const FormLogin = (props) => {
         rules={[
           {
             required: true,
-            message: 'Please input your username!',
+            message: 'Vui lòng nhập tài khoản!',
           },
         ]}
       >
-        <Input placeholder='Vui lòng nhập username' />
+        <Input placeholder='Vui lòng nhập tài khoản' />
       </Form.Item>
 
       <Form.Item
@@ -59,15 +59,15 @@ export const FormLogin = (props) => {
         rules={[
           {
             required: true,
-            message: 'Please input your password!',
+            message: 'Vui lòng nhập mật khẩu!',
           },
         ]}
       >
-        <Input.Password placeholder='Vui lòng nhập password' />
+        <Input.Password placeholder='Vui lòng nhập mật khẩu' />
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading}>
-          Submit
+          Đăng Nhập
         </Button>
       </Form.Item>
     </Form>

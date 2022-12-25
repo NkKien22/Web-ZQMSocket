@@ -19,7 +19,7 @@ export const MyOrder = (props) => {
             fullName: x?.fullName,
             address: x?.address,
             phoneNumber: x?.phoneNumber,
-            total: x?.total,
+            profit: x?.profit,
             orderStatus: x?.orderStatus,
           }))
         );
@@ -52,23 +52,23 @@ export const MyOrder = (props) => {
 
   const columnsOrderDetail = [
     {
-      title: "Tên san pham",
+      title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
     },
     {
-      title: "So luong",
+      title: "Số lượng",
       dataIndex: "quantity",
       key: "quantity",
     },
     {
-      title: "Gia",
+      title: "Giá",
       dataIndex: "unitPrice",
       key: "unitPrice",
       render: (text) => <a>{formatPrice(text)}</a>,
     },
     {
-      title: "Mau",
+      title: "Màu",
       dataIndex: "optionCarts",
       key: "optionCarts",
       render: (text) => <a>{text[0].optionValue}</a>,
@@ -100,7 +100,7 @@ export const MyOrder = (props) => {
     },
     {
       title: "Tổng tiền",
-      dataIndex: "total",
+      dataIndex: "profit",
       key: "total",
       render: (text) => <a>{formatPrice(text)}</a>,
     },
@@ -155,7 +155,7 @@ export const MyOrder = (props) => {
         pagination={false}
       />
       <Modal
-        title="Chi tiet don hang"
+        title="Chi tiết đơn hàng"
         open={openModalDetail}
         onOk={() => setOpenModalDetail(false)}
         onCancel={() => setOpenModalDetail(false)}

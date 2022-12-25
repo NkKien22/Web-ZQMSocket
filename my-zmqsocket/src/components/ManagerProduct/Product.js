@@ -1,26 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Moda } from "react-bootstrap";
-import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
-import VisibilityTwoToneIcon from "@mui/icons-material/VisibilityTwoTone";
-import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
+import { useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 import {
   Drawer,
   Form,
-  Menu,
   Pagination,
   Input,
   Popconfirm,
   notification,
 } from "antd";
-import {
-  AppstoreOutlined,
-  MailOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
 import axios from "axios";
 import { URL_API } from "../../utils/common";
 import { SideBar } from "../Sidebar/SideBar";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 const { Search } = Input;
 
@@ -33,41 +25,31 @@ function getItem(label, key, icon, children, type) {
     type,
   };
 }
-const items = [
-  getItem("Quản lý sản phẩm", "1"),
-  getItem("Quản lý khách hàng", "2"),
-];
+
 function ProductManager() {
-  const [empdata, empdatachange] = useState(null); //Thêm link api get all user
   const [data, setData] = useState([]); //Thêm link api get all user
   const [dataSearch, setDataSearch] = useState([]); //Thêm link api get all user
   const [openFormAdd, setOpenFormAdd] = useState(false);
   const [openFormEdit, setOpenFormEdit] = useState(false);
-  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState();
   const onChangePage = (page, pageSize) => {
     setCurrentPage(page);
-    getAllProduct(page, 12);
+    getAllProduct(page, 10);
   };
-  const LoadDetail = (id) => {
-    navigate("/QLSanPham/detail/" + id);
-  };
-  const LoadEdit = (id) => {
-    navigate("/QLSanPham/edit/" + id);
-  };
+
   const handleDeleteProduct = (id) => {
-    // axios
-    //   .delete(`${URL_API}/CartItem/delete-cart?cartId=${id}`)
-    //   .then((res) => {
-    //     if (res)
-    //       notification.success({
-    //         message: "Xóa sản phẩm giỏ hàng thành công",
-    //       });
-    //   })
-    //   .then(() => {
-    //     window.location.reload();
-    //   });
+    axios
+      .delete(`${URL_API}/Product/delete-product?productID=${id}`)
+      .then((res) => {
+        if (res)
+          notification.success({
+            message: "Xóa sản phẩm thành công",
+          });
+      })
+      .then(() => {
+        window.location.reload();
+      });
   };
   const getAllProduct = (page, pageSize) => {
     axios
@@ -90,6 +72,7 @@ function ProductManager() {
 
   const onCloseFormEdit = () => {
     setOpenFormEdit(false);
+    setDataDetail(null);
   };
 
   const onSearch = (value) => {
@@ -122,19 +105,46 @@ function ProductManager() {
     });
   };
 
+  const onFinishUpdate = (values) => {
+    const payload = {
+      productId: dataDetail.productID,
+      productName: values.productName,
+      brandName: values.brandName,
+      price: parseInt(values.price) ,
+      importPrice: dataDetail.importPrice,
+      quantity: parseInt(values.quantity),
+      images: dataDetail.images,
+      options: dataDetail.options,
+    };
+    axios.put(`${URL_API}/Product/update-product`, payload).then((res) => {
+      onCloseFormEdit();
+      notification.success({
+        message: res.data.message,
+      });
+      getAllProduct(1, 10);
+    });
+  };
+
+  const [dataDetail, setDataDetail] = useState();
+  const getDetailProduct = (id) => {
+    axios
+      .get(`${URL_API}/Product/get-product-detail-by-id?id=${id}`)
+      .then((res) => {
+        setDataDetail(res.data.item);
+      });
+  };
+
+  console.log(dataDetail);
+
   return (
     <div class="row">
       <div className="col-sm-2">
-        <SideBar isActive="1"/>
+        <SideBar isActive="1" />
       </div>
       <div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded col-sm-10">
         <div class="row ">
           <div class="col-sm-3 mt-5 mb-4 text-gred">
-            <Search
-              placeholder="Tìm kiếm"
-              onSearch={onSearch}
-              enterButton
-            />
+            <Search placeholder="Tìm kiếm" onSearch={onSearch} enterButton />
           </div>
           <div
             class="col-sm-3 offset-sm-2 mt-5 mb-4 text-gred"
@@ -162,52 +172,43 @@ function ProductManager() {
                 <tr>
                   <th>STT</th>
                   <th>Hình ảnh</th>
-                  <th>Tên SP </th>
-                  <th>Thuơng hiệu</th>
+                  <th>Tên Sản phẩm </th>
+                  <th>Thương hiệu</th>
                   <th>Giá bán </th>
                   <th>Số lượng</th>
                   <th>Tùy chọn</th>
                 </tr>
               </thead>
               <tbody>
-                {((dataSearch.length > 0 && dataSearch) || data).map((a, index) => (
-                  <tr>
-                    <td>{index + 1}</td>
-                    <img src={a.anh} class="img-thumbnail" width={50}></img>
-                    <td>{a.productName}</td>
-                    <td>{a.brandName}</td>
-                    <td>{a.price} </td>
+                {((dataSearch.length > 0 && dataSearch) || data).map(
+                  (a, index) => (
+                    <tr>
+                      <td>{index + 1}</td>
+                      <img src={a.anh} class="img-thumbnail" width={50}></img>
+                      <td>{a.productName}</td>
+                      <td>{a.brandName}</td>
+                      <td>{a.price} </td>
 
-                    <td>{a.quantity} </td>
-                    <td>
-                      <a
-                        href="QLSanPham/detail"
-                        class="view"
-                        title="View"
-                        data-toggle="tooltip"
-                        style={{ color: "#10ab80", margin: "10px" }}
-                        onClick={() => {
-                          LoadDetail(a.id);
-                        }}
-                      >
-                        <VisibilityTwoToneIcon />
-                      </a>
-                      <a
-                        onClick={() => {
-                          setOpenFormEdit(true);
-                        }}
-                      >
-                        <EditTwoToneIcon />
-                      </a>
-                      <Popconfirm
-                        title="Bạn có chắc chắn xóa?"
-                        onConfirm={() => handleDeleteProduct(a.id)}
-                      >
-                        <DeleteTwoToneIcon />
-                      </Popconfirm>
-                    </td>
-                  </tr>
-                ))}
+                      <td>{a.quantity} </td>
+                      <td>
+                        <a
+                          onClick={() => {
+                            setOpenFormEdit(true);
+                            getDetailProduct(a.productID);
+                          }}
+                        >
+                          <EditOutlined />
+                        </a>
+                        <Popconfirm
+                          title="Bạn có chắc chắn xóa?"
+                          onConfirm={() => handleDeleteProduct(a.productID)}
+                        >
+                          <DeleteOutlined />
+                        </Popconfirm>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
             {data.length > 0 && (
@@ -296,68 +297,73 @@ function ProductManager() {
         onClose={onCloseFormEdit}
         open={openFormEdit}
       >
-        <Form
-          name="basic"
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={onFinish}
-          autoComplete="off"
-        >
-          <Form.Item
-            name="productName"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập sản phẩm",
-              },
-            ]}
+        {dataDetail && (
+          <Form
+            name="basic"
+            initialValues={{
+              productName: dataDetail.productName,
+              brandName: dataDetail.brandName,
+              price: dataDetail.price,
+              quantity: dataDetail.quantity,
+            }}
+            onFinish={onFinishUpdate}
+            autoComplete="off"
           >
-            <Input placeholder="Tên Sản Phẩm" />
-          </Form.Item>
+            <Form.Item
+              name="productName"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập sản phẩm",
+                },
+              ]}
+            >
+              <Input placeholder="Tên Sản Phẩm" />
+            </Form.Item>
 
-          <Form.Item
-            name="brandName"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập thương hiệu!",
-              },
-            ]}
-          >
-            <Input placeholder="Thương Hiệu" />
-          </Form.Item>
+            <Form.Item
+              name="brandName"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập thương hiệu!",
+                },
+              ]}
+            >
+              <Input placeholder="Thương Hiệu" />
+            </Form.Item>
 
-          <Form.Item
-            name="price"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập giá bán",
-              },
-            ]}
-          >
-            <Input placeholder="Giá Bán" />
-          </Form.Item>
+            <Form.Item
+              name="price"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập giá bán",
+                },
+              ]}
+            >
+              <Input placeholder="Giá Bán" />
+            </Form.Item>
 
-          <Form.Item
-            name="quantity"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập số lượng",
-              },
-            ]}
-          >
-            <Input type="number" placeholder="Số Lượng" />
-          </Form.Item>
+            <Form.Item
+              name="quantity"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập số lượng",
+                },
+              ]}
+            >
+              <Input type="number" placeholder="Số Lượng" />
+            </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Xác nhận
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Xác nhận
+              </Button>
+            </Form.Item>
+          </Form>
+        )}
       </Drawer>
     </div>
   );
