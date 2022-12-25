@@ -13,7 +13,7 @@ import axios from "axios";
 import { URL_API } from "../../utils/common";
 import { SideBar } from "../Sidebar/SideBar";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-
+import Option from "./Components/Option";
 const { Search } = Input;
 
 function getItem(label, key, icon, children, type) {
@@ -86,6 +86,7 @@ function ProductManager() {
   };
 
   const onFinish = (values) => {
+    console.log(values);
     const payload = {
       productName: values.productName,
       brandName: values.brandName,
@@ -93,12 +94,7 @@ function ProductManager() {
       price: values.price,
       quantity: values.quantity,
       images: [],
-      options: [
-        {
-          optionName: "Đỏ",
-          optionValue: "20",
-        },
-      ],
+      options: values.options
     };
     axios.post(`${URL_API}/Product/add-product`, payload).then((res) => {
       onCloseFormAdd();
@@ -133,8 +129,6 @@ function ProductManager() {
         setDataDetail(res.data.item);
       });
   };
-
-  console.log(dataDetail);
 
   return (
     <div class="row">
@@ -284,6 +278,7 @@ function ProductManager() {
             <Input type="number" placeholder="Số Lượng" />
           </Form.Item>
 
+          <Option/>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Xác nhận
@@ -305,6 +300,7 @@ function ProductManager() {
               brandName: dataDetail.brandName,
               price: dataDetail.price,
               quantity: dataDetail.quantity,
+              options: dataDetail.options
             }}
             onFinish={onFinishUpdate}
             autoComplete="off"
@@ -356,7 +352,7 @@ function ProductManager() {
             >
               <Input type="number" placeholder="Số Lượng" />
             </Form.Item>
-
+            <Option props={{}}/>
             <Form.Item>
               <Button type="primary" htmlType="submit">
                 Xác nhận
