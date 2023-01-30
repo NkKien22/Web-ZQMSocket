@@ -1,7 +1,7 @@
 import "../Profile/profile.css";
 const Profile = () => {
     return (
-    <div class="container emp-profile">
+    <div className="container emp-profile">
                 <form method="post">
                     <div class="row">
                         <div class="col-md-4">

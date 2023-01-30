@@ -1,8 +1,7 @@
 import { Button, Form, Input, notification } from 'antd';
 import axios from 'axios';
 import React, { useState } from 'react';
-import { REFRESH_TOKEN_KEY, TOKEN_KEY, URL_API } from '../../utils/common';
-import Cookies from 'js-cookie';
+import { REFRESH_TOKEN_KEY, TOKEN_KEY, URL_API,CART_ID ,USER_ID} from '../../utils/common';
 
 export const FormLogin = (props) => {
   const { setIsOpenFormLogin } = props;
@@ -10,14 +9,17 @@ export const FormLogin = (props) => {
   const onFinish = (values) => {
     setLoading(true);
     const payload = {
-      username: values.username,
+      userName: values.username,
       password: values.password,
     };
-    axios.post(`${URL_API}/User/login`, payload)
+    axios.post(`${URL_API}/User/user-login`, payload)
       .then(res => {
-        if(res.data.success) {
-          Cookies.set(TOKEN_KEY, res.data.item.accessToken);
-          Cookies.set(REFRESH_TOKEN_KEY, res.data.item.refreshToken);
+        if(res.status === 200) {
+          localStorage.setItem(TOKEN_KEY, res.data.access_token);
+          localStorage.setItem(REFRESH_TOKEN_KEY, res.data.refresh_token);
+          localStorage.setItem(CART_ID, res.data.cartId);
+          localStorage.setItem(CART_ID, res.data.cartId);
+          localStorage.setItem(USER_ID, res.data.id);
           window.location.reload();
           notification.success({
             message: 'Bạn đã đăng nhập thành công',

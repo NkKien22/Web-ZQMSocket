@@ -3,15 +3,6 @@ import { Link, useParams } from "react-router-dom";
 const ProductDetail = () => {
     const { pid } = useParams();
     const [productdata, productdatachange] = useState({});
-    useEffect(() => {
-        fetch("http://localhost:8000/employee/" + pid).then((res) => {
-            return res.json();
-        }).then((resp) => {
-            productdatachange(resp);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-    }, []);
     return (
         <div class="container-fluid">
                <div className="container">
@@ -33,8 +24,6 @@ const ProductDetail = () => {
                 }
             </div>
             </div>
-            {/* </div>
-            </div> */}
         </div >
     );
 }

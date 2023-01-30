@@ -39,7 +39,7 @@ export const FormRegister = (props) => {
       address: values.address,
       phoneNumber: values.phoneNumber
     }
-    axios.post(`${URL_API}/User/register-user`, payload , {
+    axios.post(`${URL_API}/User/create-user`, payload , {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
@@ -47,14 +47,14 @@ export const FormRegister = (props) => {
     })
       .then(res => {
         // register success
-        if(res.data.success) {
-          notification.open({
+        if(res.status) {
+          notification.success({
             message: 'Bạn đã đăng ký thành công',
           });
           setIsOpenFormRegister(false);
         } else {
-          notification.open({
-            message: res.data.message,
+          notification.error({
+            message: 'Bạn đã đăng ký thất bại',
           });
         }
       })

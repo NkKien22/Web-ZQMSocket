@@ -11,76 +11,84 @@ import {
 } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { URL_API } from "../../utils/common";
+import { URL_API, CART_ID,USER_ID } from "../../utils/common";
 import { DeleteOutlined } from "@ant-design/icons";
 import { formatPrice } from "../../helpers";
 import { Steps } from "antd";
 import { Col, Row } from "react-bootstrap";
-import { rest } from "lodash";
+import { set } from "lodash";
 
 const { Search } = Input;
 const { Step } = Steps;
 
 export const Cart = (props) => {
-  const { userId } = props;
+  const { userId, cartId } = props;
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [totalPrice, setTotalPrice] = useState();
+  const [totalPrice, setTotalPrice] = useState(0);
   const [openFormOrder, setOpenOrder] = useState(false);
   const [loading, setLoading] = useState(false);
   const [coupon, setCoupon] = useState(null);
-  const [couponValid, setCouponValid] = useState(false);
   const [step, setStep] = useState(0);
-  const [option, setOption] = useState([]);
   const [disabledCoupon, setDisabledCoupon] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [inforOrder, setInforOrder] = useState();
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    let localStorageUserId = localStorage.getItem(USER_ID);
+    let localStorageCartId = localStorage.getItem(CART_ID);
+    console.log(localStorageUserId);
+    axios
+      .get(
+        `${URL_API}/Cart/get-cart-by-id/${
+          cartId !== undefined ? cartId : localStorageCartId
+        }`
+      )
+      .then((res) => {
+        setData(
+          res?.data?.items.map((x) => {
+            let totalPriceItem =
+              x?.productVariants[0]?.price * x?.productVariants[0]?.quantity;
+            return {
+              key: x?.productVariants[0]?.id,
+              productName: x?.productName,
+              quantity: x?.productVariants[0]?.quantity,
+              price: x?.productVariants[0]?.price,
+              total: totalPriceItem,
+            };
+          })
+        );
+      });
 
+    axios.get(`${URL_API}/User/get-infor-user/${userId === undefined? localStorageUserId:userId}`).then((res) => {
+      if (res.status === 200) {
+        setInforOrder(res.data);
+      }
+    });
+  }, []);
 
   const onChangeQuantity = (record, val) => {
     data.forEach((x) => {
-      if (x.key === record.key) x.quantity = val;
-    });
-  };
-
-  const onChangeColor = (record, val) => {
-    data.forEach((x) => {
       if (x.key === record.key) {
-        const colorOps = option.filter((x) => x.optionNameID === 1);
-        var newColor = {};
-        x.optionCarts.forEach((x) => {
-          if (x.optionNameID === 1) {
-            x = colorOps.find((x) => x.optionValueID === val);
-            newColor = x;
-          }
-        });
-        x.optionCarts[0] = newColor;
+        x.quantity = val;
+        x.total = x.quantity * x.price;
       }
     });
+    setData([...data]);
   };
 
-  const onChangeRam = (record, val) => {
-    data.forEach((x) => {
-      if (x.key === record.key) {
-        const colorOps = option.filter((x) => x.optionNameID === 2);
-        var newRam = {};
-        x.optionCarts.forEach((x) => {
-          if (x.optionNameID === 1) {
-            x = colorOps.find((x) => x.optionValueID === val);
-            newRam = x;
-          }
-        });
-        x.optionCarts[1] = newRam;
-      }
-    });
-  };
-
-  const updateCart = (cartId, record) => {
+  const updateCart = (record) => {
     const payload = {
-      cartId,
-      quantity: record.quantity,
-      optionCarts: record.optionCarts,
+      id: cartId,
+      items: [
+        {
+          productVariantId: record.key,
+          quatity: record.quantity,
+        },
+      ],
     };
     axios
-      .put(`${URL_API}/CartItem/update-cartItem`, payload)
+      .put(`${URL_API}/Cart/update-cart`, payload)
       .then((res) => {
         if (res)
           notification.success({
@@ -88,27 +96,164 @@ export const Cart = (props) => {
           });
       })
       .then(() => {
+        setTimeout(1000);
         window.location.reload();
       });
   };
 
-  const handleDeleteItem = (cartId) => {
+  const handleDeleteItem = (variantId) => {
     axios
-      .delete(`${URL_API}/CartItem/delete-cart?cartId=${cartId}`)
+      .delete(`${URL_API}/Cart/${cartId}/delete-item/${variantId}`)
       .then((res) => {
-        if (res)
-          notification.success({
-            message: "Xóa sản phẩm giỏ hàng thành công",
-          });
+        if (res) console.log(res);
+        notification.success({
+          message: "Xóa sản phẩm giỏ hàng thành công",
+        });
+        setData(
+          res?.data?.items.map((x) => ({
+            key: x?.productVariants[0]?.id,
+            productName: x?.productName,
+            quantity: x?.productVariants[0]?.quantity,
+            price: x?.productVariants[0]?.price,
+            total:
+              x?.productVariants[0]?.price * x?.productVariants[0]?.quantity,
+          }))
+        );
       })
       .then(() => {
+        setTimeout(1000);
         window.location.reload();
       });
   };
-  //console.log(data);
 
   const onClose = () => {
     setOpenOrder(false);
+    setIsUpdate(false);
+  };
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+    let totalCost = 0;
+    let itemOrder = [];
+    newSelectedRowKeys?.map((el) => {
+      data?.map((item) => {
+        if (item.key === el) {
+          totalCost += item.total;
+          itemOrder.push({
+            productVariantId: item.key,
+            quatity: item.quantity,
+          });
+        }
+      });
+    });
+    setTotalPrice(totalCost);
+    setItems(itemOrder);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
+  const onFinish = (values) => {
+    if (items.length === 0) {
+      notification.warning({
+        message: "Chọn lại sản phẩm",
+      });
+    }
+    setLoading(true);
+    console.log(userId);
+    const payload = {
+      userId: userId,
+      description: values.description,
+      fullName: values.fullName,
+      phones: values.phoneNumber,
+      address: values.address,
+      orderItems: items,
+      totalCost: totalPrice,
+    };
+    axios.post(`${URL_API}/Order/create-order`, payload).then((res) => {
+      if (res.status === 200) {
+        notification.success({
+          message: "Đặt hàng thành công",
+        });
+        setOpenOrder(false);
+        setStep(2);
+        window.location.reload();
+      }
+    }).catch((err)=>{
+        notification.error({
+          message: "Đặt hàng thất bại: ",
+        });
+        setOpenOrder(false);
+        setLoading(false);
+    });
+  };
+
+  const onFinishUpdate = (props) => {
+    console.log(props);
+    let payload = {
+      id: userId,
+      address: [props.address],
+      phones: [props.phoneNumber],
+    };
+    console.log(payload);
+    axios
+      .put(`${URL_API}/User/update-user`, payload)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          notification.success({
+            message: "Cập nhật thành công",
+          });
+          setIsUpdate(false);
+          setOpenOrder(true);
+        }
+        if (res.status !== 200) {
+          notification.success({
+            message: "Cập nhật thất bại",
+          });
+          setIsUpdate(false);
+          setOpenOrder(true);
+          setLoading(false);
+        }
+      })
+      .then((res) => {})
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const onSearch = (value) => {
+    axios
+      .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)
+      .then((res) => {
+        if (res.data.item.minimunOrderValue > totalPrice) {
+          notification.warning({
+            message: "Đơn hàng chưa đạt tới " + res.data.item.minimunOrderValue,
+          });
+        } else {
+          if (res?.data?.success) {
+            setCoupon(value);
+            notification.success({
+              message: "Áp dụng mã giảm giá thành công",
+            });
+            setDisabledCoupon(true);
+            setTotalPrice((prev) => prev - res.data.item.couponValue);
+            const total_sale = totalPrice - res.data.item.minimunOrderValue;
+            if (total_sale >= 0) {
+              totalPrice = total_sale;
+            } else {
+              totalPrice = 0;
+            }
+          } else {
+            notification.warning({
+              message:
+                "Mã giảm giá không hợp lệ, vui lòng nhập lại hoặc bỏ qua",
+            });
+          }
+        }
+      });
   };
 
   const columns = [
@@ -116,73 +261,6 @@ export const Cart = (props) => {
       title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
-    },
-    {
-      title: "Màu",
-      dataIndex: "optionCarts",
-      key: "optionCarts",
-      // 1 => 2
-      render: (_, record) => (
-        <div>
-          <Select
-            style={{
-              width: 120,
-            }}
-            defaultValue={option
-              .filter((x) => x.optionNameID === 1)
-              .map((x) => ({
-                value: x.optionValueID,
-                label: x.optionValue,
-              }))
-              .find(
-                (x) =>
-                  x.value ===
-                  record.optionCarts.find((x) => x.optionNameID === 1)
-                    .optionValueID
-              )}
-            onChange={(val) => onChangeColor(record, val)}
-            options={option
-              .filter((x) => x.optionNameID === 1)
-              .map((x) => ({
-                value: x.optionValueID,
-                label: x.optionValue,
-              }))}
-          />
-        </div>
-      ),
-    },
-    {
-      title: "RAM",
-      dataIndex: "optionCarts",
-      key: "optionCarts",
-      render: (_, record) => (
-        <div>
-          <Select
-            style={{
-              width: 120,
-            }}
-            defaultValue={option
-              .filter((x) => x.optionNameID === 2)
-              .map((x) => ({
-                value: x.optionValueID,
-                label: x.optionValue,
-              }))
-              .find(
-                (x) =>
-                  x.value ===
-                  record.optionCarts.find((x) => x.optionNameID === 2)
-                    .optionValueID
-              )}
-            onChange={(val) => onChangeRam(record, val)}
-            options={option
-              .filter((x) => x.optionNameID === 2)
-              .map((x) => ({
-                value: x.optionValueID,
-                label: x.optionValue,
-              }))}
-          />
-        </div>
-      ),
     },
     {
       title: "Giá",
@@ -198,7 +276,6 @@ export const Cart = (props) => {
         <div>
           <InputNumber
             min={1}
-            max={10}
             defaultValue={record.quantity}
             onChange={(val) => onChangeQuantity(record, val)}
           />
@@ -217,10 +294,7 @@ export const Cart = (props) => {
       key: "update",
       render: (_, record) => (
         <div>
-          <Button
-            className="ms-2"
-            onClick={() => updateCart(record.key, record)}
-          >
+          <Button className="ms-2" onClick={() => updateCart(record)}>
             Cập nhật
           </Button>
         </div>
@@ -240,117 +314,6 @@ export const Cart = (props) => {
       ),
     },
   ];
-
-  const getCarts = (userId) => {
-    axios
-      .get(`${URL_API}/CartItem/getbyid-cartItem?userId=${userId}`)
-      .then((res) => {
-        setData(
-          res?.data?.item.map((x) => ({
-            key: x?.cartId,
-            productName: x?.productName,
-            quantity: x?.quantity,
-            price: x?.price,
-            total: x?.total,
-            optionCarts: x?.optionCarts,
-          }))
-        );
-        setTotalPrice(res?.data?.message);
-        // console.log(res);
-      });
-  };
-
-  const getAllOptions = (userId) => {
-    axios.get(`${URL_API}/CartItem/get-all-option`).then((res) => {
-      setOption(res.data);
-    });
-  };
-
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-  const onFinish = (values) => {
-    setLoading(true);
-    const product = data
-      .filter((x) => selectedRowKeys.includes(x.key))
-      .map((x) => ({
-        cartID: x.key,
-        price: x.price,
-        optionCarts: x.optionCarts.map((x) => ({
-          optionNameID: x.optionNameID,
-          optionValueID: x.optionValueID,
-        })),
-      }));
-    const payload = {
-      codeCoupon: coupon,
-      userID: userId,
-      description: values.description,
-      fullName: values.fullName,
-      phoneNumber: values.phoneNumber,
-      address: values.address,
-      email: values.email,
-      product,
-    };
-    axios
-      .post(`${URL_API}/Order/create-order`, payload)
-      .then((res) => {
-        if (res) {
-          notification.success({
-            message: "Đặt hàng thành công",
-          });
-          setOpenOrder(false);
-          setStep(3);
-          window.location.reload();
-        }
-      })
-      .finally(() => setLoading(true));
-  };
-
-  const onSearch = (value) => {
-    axios
-    .get(`${URL_API}/Coupon/get-coupon-by-code?code=${value}`)   
-    .then((res) => {
-      // console.log("minimunOrderValue",res.data.item.minimunOrderValue)
-      if(res.data.item.minimunOrderValue > totalPrice){
-         console.log("Mã giảm giá lớn hơn giá trị đơn hàng")
-         notification.warning({
-          message: "Đơn hàng chưa đạt tới " + res.data.item.minimunOrderValue,
-         })
-      } else {
-        if (res?.data?.success) {
-          setCoupon(value);
-          notification.success({ 
-            message: "Áp dụng mã giảm giá thành công",
-          });
-          setDisabledCoupon(true);
-          setTotalPrice((prev) => prev - res.data.item.couponValue);
-         const total_sale = totalPrice - res.data.item.minimunOrderValue
-         if(total_sale >= 0){
-          totalPrice = total_sale
-         } else {
-          totalPrice = 0
-         }
-        } else {
-          setCouponValid(false);
-          notification.warning({
-            message: "Mã giảm giá không hợp lệ, vui lòng nhập lại hoặc bỏ qua",
-          });
-        }
-      }
-      }
-     );
-  };
-
-  useEffect(() => {
-    if (userId) getCarts(userId);
-    getAllOptions();
-  }, [userId]);
 
   return (
     <div className="container mt-5">
@@ -429,6 +392,72 @@ export const Cart = (props) => {
               },
             ]}
           >
+            <Select
+              placeholder={"Địa chỉ"}
+              options={inforOrder?.address.map((x) => ({
+                value: x,
+                label: x,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="phoneNumber"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập số điện thoại",
+              },
+            ]}
+          >
+            <Select
+              placeholder={"Số điện thoại"}
+              options={inforOrder?.phones.map((x) => ({
+                value: x,
+                label: x,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item name="description">
+            <Input placeholder="Mô tả" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Xác nhận
+            </Button>{" "}
+            <Button
+              type="primary"
+              onClick={() => setIsUpdate(true)}
+              loading={loading}
+            >
+              Cập nhật thông tin
+            </Button>
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      <Drawer
+        title="Cập nhật thông tin dặt hàng"
+        placement="right"
+        onClose={onClose}
+        open={isUpdate}
+      >
+        <Form
+          name="basic"
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinishUpdate}
+          autoComplete="off"
+        >
+          <Form.Item
+            name="address"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập địa chỉ!",
+              },
+            ]}
+          >
             <Input placeholder="Địa chỉ" />
           </Form.Item>
           <Form.Item
@@ -440,18 +469,12 @@ export const Cart = (props) => {
               },
             ]}
           >
-            <Input type="number" placeholder="Số điện thoại" />
-          </Form.Item>
-          <Form.Item name="email">
-            <Input type="email" placeholder="Email" />
-          </Form.Item>
-          <Form.Item name="description">
-            <Input placeholder="Mô tả" />
+            <Input type="text" placeholder="Số điện thoại" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>
               Xác nhận
-            </Button>
+            </Button>{" "}
           </Form.Item>
         </Form>
       </Drawer>

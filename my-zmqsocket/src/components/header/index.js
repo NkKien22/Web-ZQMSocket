@@ -20,8 +20,12 @@ import "./styles.css";
 import { useEffect, useState } from "react";
 import { FormLogin } from "./formLogin";
 import { FormRegister } from "./formRegister";
-import { REFRESH_TOKEN_KEY, TOKEN_KEY, URL_API } from "../../utils/common";
-import Cookies from "js-cookie";
+import {
+  REFRESH_TOKEN_KEY,
+  TOKEN_KEY,
+  URL_API,
+  CART_ID,
+} from "../../utils/common";
 import axios from "axios";
 // import "./../../assets/pages/css/components.css";
 // import "./../../assets/pages/css/slider.css";
@@ -54,6 +58,12 @@ export const Header = (props) => {
   const [isOpenFormLogin, setIsOpenFormLogin] = useState(false);
   const [isOpenFormRegister, setIsOpenFormRegister] = useState(false);
   const countProductLocal = localStorage.getItem("COUNT_PRODUCT");
+  const [cartId, setCartId] = useState();
+
+  useEffect(() => {
+    let cartId = localStorage.getItem(CART_ID);
+    setCartId(cartId);
+  }, []);
 
   const onSearch = (value) => {
     axios
@@ -81,8 +91,8 @@ export const Header = (props) => {
     setIsOpenFormRegister(false);
   };
   const logoutUser = () => {
-    Cookies.remove(TOKEN_KEY);
-    Cookies.remove(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     window.location.reload();
   };
   const menu = (
@@ -169,9 +179,9 @@ export const Header = (props) => {
     />
   );
 
-  const handleDeleteItem = (cartId) => {
+  const handleDeleteItem = (variantId) => {
     axios
-      .delete(`${URL_API}/CartItem/delete-cart?cartId=${cartId}`)
+      .delete(`${URL_API}/Cart/${cartId}/delete-item/${variantId}`)
       .then((res) => {
         window.location.reload();
       });
@@ -185,12 +195,10 @@ export const Header = (props) => {
     axios
       .get(`${URL_API}/User/find-user-by-id?id=${loginInfo?.id}`)
       .then((res) => {
-        console.log(res.data.item);
         setUser(res.data.item);
         setGender(res.data.item.gender ? "male" : "female");
       });
   };
-  console.log(loginInfo);
 
   const handleOkUser = () => {
     setIsModalOpenUser(false);
@@ -248,40 +256,55 @@ export const Header = (props) => {
               <a href="javascript:void(0);" className="top-cart-info-count">
                 {countCart || 0} sản phẩm
               </a>
-              <a href="javascript:void(0);" className="top-cart-info-value">
-                {total ? formatPrice(total) : 0}
-              </a>
+              <a href="javascript:void(0);" className="top-cart-info-value"></a>
             </div>
             <i className="fa fa-shopping-cart" />
-            <div
-              className="top-cart-content-wrapper"
-              style={{ height: "auto" }}
-            >
-              <div className="top-cart-content">
-                <ul className="scroller">
-                  {data?.map((x) => (
-                    <li className="w-100 d-flex">
-                      <span className="cart-content-count">x {x.quantity}</span>
-                      <strong>
-                        <a>{x.productName}</a>
-                      </strong>
-                      <strong>{formatPrice(x.price)}</strong>
-                      <a
-                        className="del-goods"
-                        onClick={() => handleDeleteItem(x.key)}
+            {data?.length !== 0 ? (
+              <div
+                className="top-cart-content-wrapper"
+                style={{ height: "auto" }}
+              >
+                <div className="top-cart-content">
+                  <ul className="scroller">
+                    {data?.map((x) => (
+                      <li className="w-100 d-flex">
+                        <span className="cart-content-count">
+                          x {x.quantity}
+                        </span>
+                        <strong>
+                          <a>{x.productName}</a>
+                        </strong>
+                        <strong>{formatPrice(x.price)}</strong>
+                        <a
+                          className="del-goods"
+                          onClick={() => handleDeleteItem(x.key)}
+                        >
+                          &nbsp;
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="text-right">
+                    <Link to="/cart" className="cart">
+                      <p
+                        className="btn btn-default mask"
+                        style={{
+                          background: `linear-gradient(
+                          45deg,
+                          hsla(168, 85%, 52%, 0.5),
+                          hsla(263, 88%, 45%, 0.5) 100%
+                        )`,
+                        }}
                       >
-                        &nbsp;
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <div className="text-right">
-                  <Link to="/cart" className="cart">
-                    <a className="btn btn-default">Xem giỏ hàng</a>
-                  </Link>
+                        Xem giỏ hàng
+                      </p>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <></>
+            )}
           </div>
           <div className="top-cart-block text-center pb-5">
             <div className="top-cart-info">
@@ -306,14 +329,6 @@ export const Header = (props) => {
           </div>
         </div>
       </div>
-      <Link to="/cart" className="cart">
-        <div className="login-logout">
-          <Badge count={countProduct || countProductLocal}>
-            <ShoppingCartOutlined className="login-logout-icon" />
-          </Badge>
-          <div class="about__box-content">Giỏ hàng</div>
-        </div>
-      </Link>
       <Modal
         title="Đăng nhập"
         open={isOpenFormLogin}
