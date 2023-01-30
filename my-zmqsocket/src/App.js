@@ -4,10 +4,9 @@ import { ProductDetail } from "./pages/productDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Home } from "./components/home";
 import { Header } from "./components/header";
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import jwt_decode from "jwt-decode";
-import { TOKEN_KEY, URL_API } from "./utils/common";
+import { TOKEN_KEY, URL_API, CART_ID } from "./utils/common";
 import { Cart } from "./pages/cart";
 import axios from "axios";
 import ProductManager from "./components/ManagerProduct/Product";
@@ -20,6 +19,7 @@ import Promotion from "./components/Promotion/promotion";
 
 
 function App() {
+  const [cartId, setCartId] = useState();
   const [loginInfo, setLoginInfo] = useState();
   const [isLogined, setIsLogined] = useState();
   const [countProduct, setCountProduct] = useState(0);
@@ -28,7 +28,9 @@ function App() {
   const [countCart, setCountCart] = useState();
   const [dataSearch, setDataSearch] = useState([]);
   useEffect(() => {
-    const tokenLogin = Cookies.get(TOKEN_KEY);
+    let cartId = localStorage.getItem(CART_ID);
+    setCartId(cartId)
+    const tokenLogin = localStorage.getItem(TOKEN_KEY);
     if (!tokenLogin) {
       setIsLogined(false);
     } else {
@@ -48,17 +50,19 @@ function App() {
 
   const getCarts = () => {
     axios
-      .get(`${URL_API}/CartItem/getbyid-cartItem?userId=${loginInfo?.id}`)
+      .get(`${URL_API}/Cart/get-cart-by-id/${cartId}`)
       .then((res) => {
-        setCountCart(res?.data?.item?.length);
+        localStorage.setItem("COUNT_PRODUCT", res?.data?.items?.length)
+        setCountCart(res?.data?.items?.length);
         setTotal(res?.data?.message);
         setData(
-          res?.data?.item.map((x) => ({
-            key: x?.cartId,
+          res?.data?.items.map((x) => ({
+            key: x?.productVariants[0]?.id,
             productName: x?.productName,
-            quantity: x?.quantity,
-            price: x?.price,
-            total: x?.total,
+            quantity: x?.productVariants[0]?.quantity,
+            price: x?.productVariants[0]?.price,
+            total:
+              x?.productVariants[0]?.price * x?.productVariants[0]?.quantity,
           }))
         );
       });
@@ -84,7 +88,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home dataSearch={dataSearch} />} />
           <Route
-            path="/product/:productID"
+            path="/product/:productId/detail-by/:id"
             element={
               <ProductDetail
                 userId={loginInfo?.id}
@@ -93,7 +97,7 @@ function App() {
               />
             }
           />
-          <Route path="/cart" element={<Cart userId={loginInfo?.id} />} />
+          <Route path="/cart" element={<Cart userId={loginInfo?.id} cartId={cartId} />} />
           <Route path="/my-order" element={<MyOrder userId={loginInfo?.id}/>} />
           <Route path="/QLSanPham" element={<ProductManager />} />
           <Route path="/profile" element={<Profile />} />

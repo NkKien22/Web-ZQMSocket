@@ -1,4 +1,4 @@
-import { Row, Col, Card, Button, Spin, Tag, Select, Tabs, Table } from "antd";
+import { Row, Col, Card, Button, Spin, Tag, Select, Tabs, Table , notification, message} from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { formatPrice } from "../../helpers";
@@ -20,11 +20,11 @@ export const ProductList = (props) => {
     setLoading(true);
     axios
       .get(
-        `${URL_API}/Product/get-product?pageNum=${page}&pageSize=${pageSize}`
+        `${URL_API}/Product/get-all-product`
       )
       .then((res) => {
-        setData(res.data.item);
-        setTotal(parseInt(res.data.message.split(" ")[0]));
+        console.log(res.data);
+        setData(res.data);
       })
       .finally(() => setLoading(false));
   };
@@ -33,11 +33,10 @@ export const ProductList = (props) => {
     setLoading(true);
     axios
       .get(
-        `${URL_API}/Product/get-product?pageNum=${page}&pageSize=${pageSize}&keyworks=${tacagoryName}`
+        `${URL_API}`
       )
       .then((res) => {
-        setData(res.data.item);
-        setTotal(parseInt(res.data.message.split(" ")[0]));
+        setData(res.data);
       })
       .finally(() => setLoading(false));
   };
@@ -56,9 +55,9 @@ export const ProductList = (props) => {
 
   useEffect(() => {
     getAllProduct(1, 12);
-    getAllCategory();
-    getTopProductSell();
-    getTopProductSell1();
+    // getAllCategory();
+    // getTopProductSell();
+    // getTopProductSell1();
     //getAllproductDiscount();
   }, []);
 
@@ -107,12 +106,6 @@ export const ProductList = (props) => {
         setDataSell(res.data.item);
       });
   };
-
-  // const getAllproductDiscount = () => {
-  //   axios.post(`${URL_API}/Discount/add-ProductDiscount`).then((res) => {
-  //     console.log(res)
-  //   });
-  // };
 
   const getTopProductSell1 = () => {
     const start = "2020-12-02 10:10:10";
@@ -258,40 +251,40 @@ export const ProductList = (props) => {
           <Spin className="text-center" />
         ) : (
           <>
-            {((dataSearch.length > 0 && dataSearch) || data).map((x) => {
-              return (
+            {data?.map((product,indexProduct) => {
+              return product?.productVariants?.map((variant,indexVariant)=> (
                 <Col>
-                  <Link to={`/product/${x.productID}`}>
+                  <Link to={`/product/${product.id}/detail-by/${variant.id}`}>
                     <Card
                       hoverable
                       style={{ width: 250 }}
                       cover={
                         <img
                           alt="example"
-                          src="https://cf.shopee.vn/file/2c4d98eeff0be7f6eaeb25f919e13c44"
+                          src={variant.images[0].thumbnail}
                           style={{ height: 200 }}
                         />
                       }
                     >
                       <div className="text-center fw-bold">
-                        {x.productName}{" "}
-                        <Tag color="#108ee9">SL : {x.quantity}</Tag>
+                        {product.productName}{" "}
+                        <Tag color="#108ee9">SL : {variant.quantity}</Tag>
                       </div>
                       <div className="d-flex">
                         <span style={{ color: "red", fontWeight: "bold" }}>
-                          {formatPrice(x.price)}
+                          {formatPrice(variant.price)}
                         </span>
                         <span
                           style={{ color: "red", fontWeight: "bold" }}
                           className="text-decoration-line-through ms-5"
                         >
-                          {formatPrice(x.fakePrice)}
+                          {formatPrice(variant.price * 0.1)}
                         </span>
                       </div>
                     </Card>
                   </Link>
                 </Col>
-              );
+              ))
             })}
           </>
         )}
